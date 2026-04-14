@@ -5,14 +5,7 @@ import { motion } from "framer-motion";
 import { Users, Search, Edit, Trash2, Shield, User, GraduationCap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const mockUsers = [
-    { id: "1", name: "Nguyễn Văn Minh", email: "minh@student.edu.vn", role: "STUDENT", sessions: 24, questions: 156, joined: "01/12/2024" },
-    { id: "2", name: "Trần Thị Hương", email: "huong@student.edu.vn", role: "STUDENT", sessions: 18, questions: 95, joined: "05/12/2024" },
-    { id: "3", name: "Lê Quốc Bảo", email: "bao@student.edu.vn", role: "STUDENT", sessions: 31, questions: 210, joined: "15/11/2024" },
-    { id: "4", name: "Phạm Thanh Tú", email: "tu@teacher.edu.vn", role: "TEACHER", sessions: 5, questions: 0, joined: "10/11/2024" },
-    { id: "5", name: "Vũ Admin", email: "admin@gphysics.vn", role: "ADMIN", sessions: 12, questions: 0, joined: "01/11/2024" },
-    { id: "6", name: "Hoàng Đức Nam", email: "nam@student.edu.vn", role: "STUDENT", sessions: 7, questions: 42, joined: "20/12/2024" },
-];
+const mockUsers: { id: string; name: string; email: string; role: string; sessions: number; questions: number; joined: string }[] = [];
 
 function RoleBadge({ role }: { role: string }) {
     const config = {

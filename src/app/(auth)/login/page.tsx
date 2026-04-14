@@ -11,6 +11,7 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+    const [welcomeUser, setWelcomeUser] = useState<string | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -31,12 +32,65 @@ export default function LoginPage() {
                 return;
             }
 
-            window.location.href = "/tutor";
+            // Show welcome animation then redirect
+            setWelcomeUser(data.user?.name || "Học sinh");
+            setTimeout(() => {
+                window.location.href = "/tutor";
+            }, 2000);
         } catch {
             setError("Không thể kết nối server, vui lòng thử lại");
             setIsLoading(false);
         }
     };
+
+    // Welcome overlay
+    if (welcomeUser) {
+        return (
+            <main className="min-h-screen flex items-center justify-center relative overflow-hidden">
+                <div className="gradient-orb w-[600px] h-[600px] bg-indigo-500 top-[-200px] right-[-200px]" />
+                <div className="gradient-orb w-[400px] h-[400px] bg-violet-500 bottom-[-100px] left-[-100px]" />
+                <motion.div
+                    className="text-center relative z-10"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                >
+                    <motion.div
+                        initial={{ scale: 0, rotate: -180 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        transition={{ delay: 0.1, duration: 0.5, type: "spring" }}
+                        className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500/30 to-violet-500/30 border border-white/20 flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-indigo-500/20"
+                    >
+                        <Atom className="w-10 h-10 text-indigo-400" />
+                    </motion.div>
+                    <motion.h1
+                        className="text-3xl font-bold text-white mb-2"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                    >
+                        Xin chào, {welcomeUser}! 👋
+                    </motion.h1>
+                    <motion.p
+                        className="text-white/50 text-sm"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5 }}
+                    >
+                        Đang chuẩn bị không gian học tập...
+                    </motion.p>
+                    <motion.div
+                        className="mt-6 flex justify-center"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.7 }}
+                    >
+                        <div className="w-8 h-8 border-2 border-white/20 border-t-indigo-400 rounded-full animate-spin" />
+                    </motion.div>
+                </motion.div>
+            </main>
+        );
+    }
 
     return (
         <main className="min-h-screen flex items-center justify-center px-6 relative">

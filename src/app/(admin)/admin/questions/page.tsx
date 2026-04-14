@@ -5,14 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FileText, Plus, Search, Edit, Trash2, X, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const mockQuestions = [
-    { id: "1", topic: "Dao động cơ", text: "Một con lắc lò xo dao động điều hòa...", difficulty: "MEDIUM", type: "MULTIPLE_CHOICE", source: "Đề THPT 2024" },
-    { id: "2", topic: "Sóng cơ", text: "Hai nguồn sóng kết hợp S1, S2...", difficulty: "EASY", type: "MULTIPLE_CHOICE", source: "SGK" },
-    { id: "3", topic: "Dòng điện xoay chiều", text: "Cho mạch RLC nối tiếp...", difficulty: "MEDIUM", type: "CALCULATION", source: "Đề THPT 2023" },
-    { id: "4", topic: "Lượng tử ánh sáng", text: "Giới hạn quang điện của kim loại kali...", difficulty: "EASY", type: "MULTIPLE_CHOICE", source: "SGK" },
-    { id: "5", topic: "Hạt nhân nguyên tử", text: "Chất phóng xạ X có chu kỳ bán rã...", difficulty: "EASY", type: "MULTIPLE_CHOICE", source: "Đề thi thử" },
-    { id: "6", topic: "Sóng ánh sáng", text: "Trong thí nghiệm Young...", difficulty: "HARD", type: "CALCULATION", source: "Đề THPT 2024" },
-];
+const mockQuestions: { id: string; topic: string; text: string; difficulty: string; type: string; source: string }[] = [];
 
 export default function AdminQuestionsPage() {
     const [search, setSearch] = useState("");

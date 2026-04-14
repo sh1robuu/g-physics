@@ -16,9 +16,14 @@ import {
     Menu,
     X,
     Library,
+    Plus,
+    MessageSquare,
+    Trash2,
 } from "lucide-react";
 import { useState } from "react";
 import { SmartAssistant } from "@/components/SmartAssistant";
+import { useChatStore } from "@/lib/store/chat";
+import { useRouter } from "next/navigation";
 
 const navItems = [
     { title: "Gia sư AI", href: "/tutor", icon: Brain },
@@ -30,6 +35,8 @@ const navItems = [
 
 function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
     const pathname = usePathname();
+    const router = useRouter();
+    const { conversations, activeConversationId, createConversation, setActiveConversation, deleteConversation } = useChatStore();
 
     return (
         <>
@@ -93,6 +100,58 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
                             );
                         })}
                     </nav>
+
+                    {/* Chat History */}
+                    <div className="flex-1 px-3 mt-4 overflow-y-auto custom-scrollbar min-h-0">
+                        <div className="flex items-center justify-between mb-2 px-1">
+                            <span className="text-[10px] uppercase font-bold text-white/30 tracking-wider">Lịch sử chat</span>
+                            <button
+                                onClick={() => {
+                                    createConversation();
+                                    router.push("/tutor");
+                                    onClose();
+                                }}
+                                className="p-1 rounded-lg hover:bg-white/10 text-white/40 hover:text-white/80 transition-colors"
+                                title="Cuộc trò chuyện mới"
+                            >
+                                <Plus className="w-3.5 h-3.5" />
+                            </button>
+                        </div>
+                        {conversations.length === 0 ? (
+                            <p className="text-xs text-white/20 px-2 py-4 text-center">Chưa có cuộc trò chuyện nào</p>
+                        ) : (
+                            <div className="space-y-0.5">
+                                {conversations.map((conv) => (
+                                    <div
+                                        key={conv.id}
+                                        className={cn(
+                                            "group flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm cursor-pointer transition-all",
+                                            activeConversationId === conv.id
+                                                ? "bg-indigo-500/15 text-indigo-200"
+                                                : "text-white/50 hover:text-white/80 hover:bg-white/5"
+                                        )}
+                                        onClick={() => {
+                                            setActiveConversation(conv.id);
+                                            router.push("/tutor");
+                                            onClose();
+                                        }}
+                                    >
+                                        <MessageSquare className="w-3.5 h-3.5 shrink-0" />
+                                        <span className="flex-1 truncate text-xs">{conv.title}</span>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                deleteConversation(conv.id);
+                                            }}
+                                            className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-red-400/10 text-white/30 hover:text-red-400 transition-all"
+                                        >
+                                            <Trash2 className="w-3 h-3" />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
 
                     {/* Bottom */}
                     <div className="p-3 border-t border-white/5 space-y-1">

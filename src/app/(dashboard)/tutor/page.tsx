@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MathRenderer } from "@/components/MathRenderer";
+import { useChatStore } from "@/lib/store/chat";
 import type { TutoringMode } from "@/types";
 
 interface Message {
@@ -92,14 +93,26 @@ const conceptCards = [
 ];
 
 export default function TutorPage() {
+    const { activeConversationId, createConversation, addMessage, getActiveConversation } = useChatStore();
+    const activeConv = getActiveConversation();
+
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [currentMode, setCurrentMode] = useState<TutoringMode>("AUTO");
-    const [currentModel, setCurrentModel] = useState("gemini-3-flash-preview:cloud");
+    const [currentModel, setCurrentModel] = useState(activeConv?.model || "gemini-3-flash-preview:cloud");
     const [isLoading, setIsLoading] = useState(false);
     const [showConcepts, setShowConcepts] = useState(true);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    // Sync messages from store when switching conversations
+    useEffect(() => {
+        if (activeConv) {
+            setMessages(activeConv.messages.map((m) => ({ ...m, mode: m.mode as TutoringMode | undefined, timestamp: new Date(m.timestamp) })));
+        } else {
+            setMessages([]);
+        }
+    }, [activeConversationId]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -113,6 +126,12 @@ export default function TutorPage() {
         e?.preventDefault();
         if (!input.trim() || isLoading) return;
 
+        // Auto-create conversation if none active
+        let convId = activeConversationId;
+        if (!convId) {
+            convId = createConversation(currentModel);
+        }
+
         const userMsg: Message = {
             id: Date.now().toString(),
             role: "user",
@@ -120,6 +139,7 @@ export default function TutorPage() {
             timestamp: new Date(),
         };
         setMessages((prev) => [...prev, userMsg]);
+        addMessage(convId, userMsg);
         setInput("");
         setIsLoading(true);
 
@@ -140,24 +160,39 @@ export default function TutorPage() {
 
             const data = await res.json();
 
-            const aiMsg: Message = {
-                id: (Date.now() + 1).toString(),
-                role: "assistant",
-                content: data.content || "Xin lỗi, có lỗi xảy ra. Vui lòng thử lại.",
-                mode: data.mode || currentMode,
-                confidence: data.confidence,
-                isGrounded: data.isGrounded,
-                timestamp: new Date(),
-            };
-            setMessages((prev) => [...prev, aiMsg]);
+            if (!res.ok || data.error) {
+                // Server error — show clean error without badges
+                const errorMsg: Message = {
+                    id: (Date.now() + 1).toString(),
+                    role: "assistant",
+                    content: `⚠️ ${data.error || "Lỗi hệ thống. Vui lòng thử lại."}`,
+                    timestamp: new Date(),
+                };
+                setMessages((prev) => [...prev, errorMsg]);
+                addMessage(convId, errorMsg);
+            } else {
+                // Valid AI response
+                const aiMsg: Message = {
+                    id: (Date.now() + 1).toString(),
+                    role: "assistant",
+                    content: data.content,
+                    mode: data.mode || currentMode,
+                    confidence: data.confidence,
+                    isGrounded: data.isGrounded,
+                    timestamp: new Date(),
+                };
+                setMessages((prev) => [...prev, aiMsg]);
+                addMessage(convId, aiMsg);
+            }
         } catch {
             const errorMsg: Message = {
                 id: (Date.now() + 1).toString(),
                 role: "assistant",
-                content: "⚠️ Không thể kết nối với AI. Vui lòng kiểm tra Ollama đang chạy trên http://localhost:11434",
+                content: "⚠️ Không thể kết nối tới server. Vui lòng kiểm tra mạng.",
                 timestamp: new Date(),
             };
             setMessages((prev) => [...prev, errorMsg]);
+            addMessage(convId, errorMsg);
         }
 
         setIsLoading(false);
