@@ -34,14 +34,7 @@ interface Resource {
     topic?: string;
 }
 
-const mockResources: Resource[] = [
-    { id: "1", title: "Đề thi THPT 2024 — Mã đề 201", description: "Đề thi chính thức môn Vật lý", fileType: "pdf", fileSize: 2400000, category: "Đề thi", tags: ["2024", "đề thi chính thức"], createdAt: new Date("2024-12-15"), topic: "Tổng hợp" },
-    { id: "2", title: "Tóm tắt công thức Dao động cơ", description: "Các công thức quan trọng chương 1", fileType: "pdf", fileSize: 450000, category: "Tóm tắt", tags: ["công thức", "dao động"], createdAt: new Date("2024-11-20"), topic: "Dao động cơ" },
-    { id: "3", title: "Bài tập mạch RLC nâng cao", description: "20 bài tập có lời giải chi tiết", fileType: "docx", fileSize: 1200000, category: "Bài tập", tags: ["RLC", "nâng cao"], createdAt: new Date("2024-12-01"), topic: "Dòng điện xoay chiều" },
-    { id: "4", title: "Ghi chú — Lượng tử ánh sáng", description: "Ghi chú bài giảng thầy Hùng", fileType: "pdf", fileSize: 800000, category: "Ghi chú", tags: ["ghi chú", "lượng tử"], createdAt: new Date("2024-12-10"), topic: "Lượng tử ánh sáng" },
-    { id: "5", title: "Sơ đồ tư duy Hạt nhân nguyên tử", description: "Mind map toàn bộ chương 7", fileType: "png", fileSize: 3500000, category: "Sơ đồ", tags: ["mind map", "hạt nhân"], createdAt: new Date("2024-12-05"), topic: "Hạt nhân nguyên tử" },
-    { id: "6", title: "Đề thi thử lần 3 — Trường THPT Chuyên", fileType: "pdf", fileSize: 1800000, category: "Đề thi", tags: ["đề thử", "trường chuyên"], createdAt: new Date("2024-12-12"), topic: "Tổng hợp" },
-];
+const mockResources: Resource[] = [];
 
 const categories = ["Tất cả", "Đề thi", "Tóm tắt", "Bài tập", "Ghi chú", "Sơ đồ"];
 

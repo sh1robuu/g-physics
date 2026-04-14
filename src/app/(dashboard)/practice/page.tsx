@@ -20,78 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 
 // Mock questions
-const mockQuestions = [
-    {
-        id: "1",
-        topic: "Dao động cơ",
-        questionText: "Một con lắc lò xo dao động điều hòa với biên độ A = 5cm, tần số f = 2Hz. Tại thời điểm t=0, vật đi qua vị trí cân bằng theo chiều dương. Phương trình dao động của vật là:",
-        options: [
-            { key: "A", text: "x = 5cos(4πt - π/2) cm" },
-            { key: "B", text: "x = 5cos(4πt + π/2) cm" },
-            { key: "C", text: "x = 5cos(4πt) cm" },
-            { key: "D", text: "x = 5cos(2πt - π/2) cm" },
-        ],
-        correctAnswer: "A",
-        explanation: "ω = 2πf = 4π rad/s. Tại t=0, x=0 và v>0 → φ = -π/2. Vậy x = 5cos(4πt - π/2) cm.",
-        difficulty: "MEDIUM" as const,
-    },
-    {
-        id: "2",
-        topic: "Sóng cơ",
-        questionText: "Hai nguồn sóng kết hợp S1, S2 cách nhau 10cm dao động cùng pha với bước sóng λ = 2cm. Số điểm cực đại trên đoạn S1S2 là:",
-        options: [
-            { key: "A", text: "9" },
-            { key: "B", text: "11" },
-            { key: "C", text: "10" },
-            { key: "D", text: "21" },
-        ],
-        correctAnswer: "B",
-        explanation: "d1 - d2 = kλ. Ta có -S1S2/λ ≤ k ≤ S1S2/λ → -5 ≤ k ≤ 5. Có 11 giá trị k nguyên.",
-        difficulty: "EASY" as const,
-    },
-    {
-        id: "3",
-        topic: "Dòng điện xoay chiều",
-        questionText: "Cho mạch RLC nối tiếp có R = 100Ω, L = 1/π H, C = 10⁻⁴/π F. Đặt vào hai đầu mạch điện áp u = 200cos(100πt) V. Cường độ dòng điện hiệu dụng là:",
-        options: [
-            { key: "A", text: "1A" },
-            { key: "B", text: "√2 A" },
-            { key: "C", text: "2A" },
-            { key: "D", text: "1/√2 A" },
-        ],
-        correctAnswer: "B",
-        explanation: "ZL = ωL = 100Ω, ZC = 1/(ωC) = 100Ω. Z = √(R² + (ZL-ZC)²) = R = 100Ω. I = U/Z = 200/(√2·100) = √2 A.",
-        difficulty: "MEDIUM" as const,
-    },
-    {
-        id: "4",
-        topic: "Lượng tử ánh sáng",
-        questionText: "Giới hạn quang điện của kim loại kali là λ₀ = 0,55μm. Công thoát electron khỏi kim loại kali là: (h = 6,625×10⁻³⁴ Js, c = 3×10⁸ m/s)",
-        options: [
-            { key: "A", text: "3,6×10⁻¹⁹ J" },
-            { key: "B", text: "36×10⁻¹⁹ J" },
-            { key: "C", text: "2,26 eV" },
-            { key: "D", text: "A và C đều đúng" },
-        ],
-        correctAnswer: "D",
-        explanation: "A = hc/λ₀ = 6,625×10⁻³⁴ × 3×10⁸ / (0,55×10⁻⁶) = 3,6×10⁻¹⁹ J ≈ 2,26 eV.",
-        difficulty: "EASY" as const,
-    },
-    {
-        id: "5",
-        topic: "Hạt nhân nguyên tử",
-        questionText: "Chất phóng xạ X có chu kỳ bán rã T = 8 ngày. Ban đầu có 100g chất X. Sau 24 ngày, khối lượng chất X còn lại là:",
-        options: [
-            { key: "A", text: "12,5g" },
-            { key: "B", text: "25g" },
-            { key: "C", text: "6,25g" },
-            { key: "D", text: "50g" },
-        ],
-        correctAnswer: "A",
-        explanation: "Sau t = 24 ngày = 3T: m = m₀/2³ = 100/8 = 12,5g.",
-        difficulty: "EASY" as const,
-    },
-];
+const mockQuestions: { id: string; topic: string; questionText: string; options: { key: string; text: string }[]; correctAnswer: string; explanation: string; difficulty: "EASY" | "MEDIUM" | "HARD" }[] = [];
 
 const topics = ["Tất cả", "Dao động cơ", "Sóng cơ", "Dòng điện xoay chiều", "Sóng ánh sáng", "Lượng tử ánh sáng", "Hạt nhân nguyên tử"];
 const difficulties = ["Tất cả", "EASY", "MEDIUM", "HARD"];

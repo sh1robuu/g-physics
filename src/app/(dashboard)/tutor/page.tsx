@@ -19,6 +19,7 @@ import {
     X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MathRenderer } from "@/components/MathRenderer";
 import type { TutoringMode } from "@/types";
 
 interface Message {
@@ -81,13 +82,13 @@ const modes: { key: TutoringMode; label: string; labelVi: string; icon: typeof L
 
 // Concept cards for Grade 12 Physics topics
 const conceptCards = [
-    { topic: "Dao động cơ", formulas: ["x = Acos(ωt + φ)", "T = 2π/ω", "E = ½kA²"], chapter: 1 },
-    { topic: "Sóng cơ", formulas: ["v = λf", "d = kλ (cực đại)", "d = (k+½)λ (cực tiểu)"], chapter: 2 },
-    { topic: "Dòng điện xoay chiều", formulas: ["Z = √(R² + (ZL-ZC)²)", "P = UIcosφ", "cosφ = R/Z"], chapter: 3 },
-    { topic: "Sóng điện từ", formulas: ["c = λf", "f = 1/(2π√LC)"], chapter: 4 },
-    { topic: "Sóng ánh sáng", formulas: ["x_k = kλD/a", "Δx = λD/a"], chapter: 5 },
-    { topic: "Lượng tử ánh sáng", formulas: ["ε = hf", "eU_h = hf - A"], chapter: 6 },
-    { topic: "Hạt nhân nguyên tử", formulas: ["E = Δm·c²", "N = N₀·e^(-λt)", "T = ln2/λ"], chapter: 7 },
+    { topic: "Dao động cơ", formulas: ["$x = A\\cos(\\omega t + \\varphi)$", "$T = \\frac{2\\pi}{\\omega}$", "$E = \\frac{1}{2}kA^2$"], chapter: 1 },
+    { topic: "Sóng cơ", formulas: ["$v = \\lambda f$", "$d = k\\lambda$ (cực đại)", "$d = (k+\\frac{1}{2})\\lambda$ (cực tiểu)"], chapter: 2 },
+    { topic: "Dòng điện xoay chiều", formulas: ["$Z = \\sqrt{R^2 + (Z_L - Z_C)^2}$", "$P = UI\\cos\\varphi$", "$\\cos\\varphi = \\frac{R}{Z}$"], chapter: 3 },
+    { topic: "Sóng điện từ", formulas: ["$c = \\lambda f$", "$f = \\frac{1}{2\\pi\\sqrt{LC}}$"], chapter: 4 },
+    { topic: "Sóng ánh sáng", formulas: ["$x_k = \\frac{k\\lambda D}{a}$", "$\\Delta x = \\frac{\\lambda D}{a}$"], chapter: 5 },
+    { topic: "Lượng tử ánh sáng", formulas: ["$\\varepsilon = hf$", "$eU_h = hf - A$"], chapter: 6 },
+    { topic: "Hạt nhân nguyên tử", formulas: ["$E = \\Delta m \\cdot c^2$", "$N = N_0 e^{-\\lambda t}$", "$T_{1/2} = \\frac{\\ln 2}{\\lambda}$"], chapter: 7 },
 ];
 
 export default function TutorPage() {
@@ -291,7 +292,7 @@ export default function TutorPage() {
                                             )}
                                         </div>
                                     )}
-                                    <div className="text-sm md:text-base whitespace-pre-wrap leading-relaxed tracking-wide font-sans">{msg.content}</div>
+                                    <MathRenderer content={msg.content} className="text-sm md:text-base leading-relaxed tracking-wide" />
                                     <div className="text-[10px] text-white/30 mt-3 font-mono">
                                         {msg.timestamp.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
                                     </div>
