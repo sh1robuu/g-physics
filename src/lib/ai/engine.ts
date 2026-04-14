@@ -10,6 +10,7 @@ export interface TutoringRequest {
     conversationHistory?: { role: "user" | "assistant"; content: string }[];
     topicContext?: string;
     imageDescription?: string;
+    modelOverride?: string;
 }
 
 export interface TutoringResponse {
@@ -33,7 +34,7 @@ export function getNextMode(currentMode: TutoringMode): TutoringMode | null {
 export async function processQuestion(
     request: TutoringRequest
 ): Promise<TutoringResponse> {
-    const { question, mode, conversationHistory, topicContext, imageDescription } = request;
+    const { question, mode, conversationHistory, topicContext, imageDescription, modelOverride } = request;
 
     const effectiveMode = mode === "AUTO" ? "HINT" : mode;
     const systemPrompt = getSystemPrompt(effectiveMode);
@@ -61,7 +62,10 @@ export async function processQuestion(
     }
     messages.push({ role: "user", content: userContent });
 
-    const content = await generateCompletion(messages);
+    const config = modelOverride
+        ? { baseUrl: process.env.OLLAMA_BASE_URL || "https://ollama.com/api", apiKey: process.env.OLLAMA_API_KEY || "", model: modelOverride }
+        : undefined;
+    const content = await generateCompletion(messages, config);
 
     const suggestedNextMode = getNextMode(effectiveMode);
 

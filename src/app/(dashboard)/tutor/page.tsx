@@ -94,6 +94,7 @@ export default function TutorPage() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [currentMode, setCurrentMode] = useState<TutoringMode>("AUTO");
+    const [currentModel, setCurrentModel] = useState("gemini-3-flash-preview:cloud");
     const [isLoading, setIsLoading] = useState(false);
     const [showConcepts, setShowConcepts] = useState(true);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -131,6 +132,7 @@ export default function TutorPage() {
                 body: JSON.stringify({
                     question: userMsg.content,
                     mode: currentMode,
+                    model: currentModel,
                     history: messages.map((m) => ({ role: m.role, content: m.content })),
                 }),
             });
@@ -193,6 +195,28 @@ export default function TutorPage() {
                     >
                         <mode.icon className="w-4 h-4" />
                         {mode.labelVi}
+                    </button>
+                ))}
+            </div>
+
+            {/* Model Selector */}
+            <div className="flex items-center gap-2 mb-4 shrink-0">
+                <span className="text-xs text-white/30 mr-1">Model:</span>
+                {[
+                    { id: "gemini-3-flash-preview:cloud", label: "Gemini Flash" },
+                    { id: "gpt-oss:120b", label: "GPT-OSS 120B" },
+                ].map((m) => (
+                    <button
+                        key={m.id}
+                        onClick={() => setCurrentModel(m.id)}
+                        className={cn(
+                            "px-3 py-1.5 rounded-lg text-xs font-medium transition-all border",
+                            currentModel === m.id
+                                ? "bg-indigo-500/15 text-indigo-300 border-indigo-500/20"
+                                : "text-white/40 border-white/5 hover:text-white/60 hover:bg-white/[0.04]"
+                        )}
+                    >
+                        {m.label}
                     </button>
                 ))}
             </div>

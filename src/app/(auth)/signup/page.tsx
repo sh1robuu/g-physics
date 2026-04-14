@@ -22,8 +22,26 @@ export default function SignupPage() {
         }
         setIsLoading(true);
         setError("");
-        await new Promise((r) => setTimeout(r, 1500));
-        window.location.href = "/dashboard";
+
+        try {
+            const res = await fetch("/api/auth/signup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, email, password }),
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error || "Đăng ký thất bại");
+                setIsLoading(false);
+                return;
+            }
+
+            window.location.href = "/dashboard";
+        } catch {
+            setError("Không thể kết nối server, vui lòng thử lại");
+            setIsLoading(false);
+        }
     };
 
     return (

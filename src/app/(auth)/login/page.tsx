@@ -16,9 +16,26 @@ export default function LoginPage() {
         e.preventDefault();
         setIsLoading(true);
         setError("");
-        // Simulate login
-        await new Promise((r) => setTimeout(r, 1500));
-        window.location.href = "/dashboard";
+
+        try {
+            const res = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error || "Đăng nhập thất bại");
+                setIsLoading(false);
+                return;
+            }
+
+            window.location.href = "/dashboard";
+        } catch {
+            setError("Không thể kết nối server, vui lòng thử lại");
+            setIsLoading(false);
+        }
     };
 
     return (
