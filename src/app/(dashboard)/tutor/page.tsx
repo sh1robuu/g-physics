@@ -23,6 +23,13 @@ import { MathRenderer } from "@/components/MathRenderer";
 import { useChatStore } from "@/lib/store/chat";
 import type { TutoringMode } from "@/types";
 
+interface Attachment {
+    name: string;
+    type: string;
+    size: number;
+    dataUrl: string;
+}
+
 interface Message {
     id: string;
     role: "user" | "assistant";
@@ -31,6 +38,7 @@ interface Message {
     confidence?: number;
     isGrounded?: boolean;
     timestamp: Date;
+    attachments?: Attachment[];
 }
 
 const modes: { key: TutoringMode; label: string; labelVi: string; icon: typeof Lightbulb; color: string; bg: string; desc: string }[] = [
@@ -102,8 +110,32 @@ export default function TutorPage() {
     const [currentModel, setCurrentModel] = useState(activeConv?.model || "gemini-3-flash-preview:cloud");
     const [isLoading, setIsLoading] = useState(false);
     const [showConcepts, setShowConcepts] = useState(true);
+    const [attachments, setAttachments] = useState<Attachment[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const imageInputRef = useRef<HTMLInputElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileSelect = (files: FileList | null) => {
+        if (!files) return;
+        Array.from(files).slice(0, 3).forEach((file) => {
+            if (file.size > 10 * 1024 * 1024) return; // 10MB limit
+            const reader = new FileReader();
+            reader.onload = () => {
+                setAttachments((prev) => [...prev, {
+                    name: file.name,
+                    type: file.type,
+                    size: file.size,
+                    dataUrl: reader.result as string,
+                }]);
+            };
+            reader.readAsDataURL(file);
+        });
+    };
+
+    const removeAttachment = (idx: number) => {
+        setAttachments((prev) => prev.filter((_, i) => i !== idx));
+    };
 
     // Sync messages from store when switching conversations
     useEffect(() => {
@@ -124,7 +156,7 @@ export default function TutorPage() {
 
     const handleSubmit = async (e?: React.FormEvent) => {
         e?.preventDefault();
-        if (!input.trim() || isLoading) return;
+        if ((!input.trim() && attachments.length === 0) || isLoading) return;
 
         // Auto-create conversation if none active
         let convId = activeConversationId;
@@ -132,14 +164,17 @@ export default function TutorPage() {
             convId = createConversation(currentModel);
         }
 
+        const msgContent = input.trim() + (attachments.length > 0 ? `\n\n📎 ${attachments.map((a) => a.name).join(", ")}` : "");
         const userMsg: Message = {
             id: Date.now().toString(),
             role: "user",
-            content: input.trim(),
+            content: msgContent,
             timestamp: new Date(),
+            attachments: attachments.length > 0 ? [...attachments] : undefined,
         };
         setMessages((prev) => [...prev, userMsg]);
         addMessage(convId, userMsg);
+        setAttachments([]);
         setInput("");
         setIsLoading(true);
 
@@ -327,6 +362,21 @@ export default function TutorPage() {
                                             )}
                                         </div>
                                     )}
+                                    {/* Attachment images */}
+                                    {msg.attachments && msg.attachments.length > 0 && (
+                                        <div className="flex gap-2 mb-3 flex-wrap">
+                                            {msg.attachments.map((att, idx) =>
+                                                att.type.startsWith("image/") ? (
+                                                    <img key={idx} src={att.dataUrl} alt={att.name} className="max-w-[200px] max-h-[150px] rounded-xl border border-white/10 object-cover" />
+                                                ) : (
+                                                    <div key={idx} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/[0.05] border border-white/10 text-xs text-white/60">
+                                                        <Upload className="w-3.5 h-3.5" />
+                                                        {att.name}
+                                                    </div>
+                                                )
+                                            )}
+                                        </div>
+                                    )}
                                     <MathRenderer content={msg.content} className="text-sm md:text-base leading-relaxed tracking-wide" />
                                     <div className="text-[10px] text-white/30 mt-3 font-mono">
                                         {msg.timestamp.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
@@ -357,12 +407,53 @@ export default function TutorPage() {
 
             {/* Input */}
             <div className="floating-panel p-3 shrink-0 rounded-3xl mt-auto">
+                {/* Attachment preview strip */}
+                {attachments.length > 0 && (
+                    <div className="flex gap-2 px-2 pb-2 overflow-x-auto">
+                        {attachments.map((att, idx) => (
+                            <div key={idx} className="relative group shrink-0">
+                                {att.type.startsWith("image/") ? (
+                                    <img src={att.dataUrl} alt={att.name} className="w-16 h-16 rounded-xl object-cover border border-white/10" />
+                                ) : (
+                                    <div className="w-16 h-16 rounded-xl bg-white/[0.05] border border-white/10 flex flex-col items-center justify-center p-1">
+                                        <Upload className="w-4 h-4 text-white/40 mb-0.5" />
+                                        <span className="text-[8px] text-white/40 text-center truncate w-full">{att.name.split(".").pop()?.toUpperCase()}</span>
+                                    </div>
+                                )}
+                                <button
+                                    onClick={() => removeAttachment(idx)}
+                                    className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                    <X className="w-3 h-3" />
+                                </button>
+                                <span className="text-[8px] text-white/30 block text-center mt-0.5 truncate w-16">{att.name}</span>
+                            </div>
+                        ))}
+                    </div>
+                )}
                 <form onSubmit={handleSubmit} className="flex items-end gap-3 relative z-20">
+                    {/* Hidden file inputs */}
+                    <input
+                        ref={imageInputRef}
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        onChange={(e) => { handleFileSelect(e.target.files); e.target.value = ""; }}
+                    />
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".pdf,.doc,.docx,.txt,.csv,.xlsx"
+                        multiple
+                        className="hidden"
+                        onChange={(e) => { handleFileSelect(e.target.files); e.target.value = ""; }}
+                    />
                     <div className="flex gap-2">
-                        <button type="button" className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 text-white/40 hover:text-white/80 hover:bg-white/[0.08] transition-all" title="Upload ảnh">
+                        <button type="button" onClick={() => imageInputRef.current?.click()} className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 text-white/40 hover:text-white/80 hover:bg-white/[0.08] transition-all" title="Upload ảnh">
                             <ImageIcon className="w-5 h-5" />
                         </button>
-                        <button type="button" className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 text-white/40 hover:text-white/80 hover:bg-white/[0.08] transition-all" title="Upload tài liệu">
+                        <button type="button" onClick={() => fileInputRef.current?.click()} className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 text-white/40 hover:text-white/80 hover:bg-white/[0.08] transition-all" title="Upload tài liệu">
                             <Upload className="w-5 h-5" />
                         </button>
                     </div>
@@ -378,10 +469,10 @@ export default function TutorPage() {
                     />
                     <button
                         type="submit"
-                        disabled={!input.trim() || isLoading}
+                        disabled={(!input.trim() && attachments.length === 0) || isLoading}
                         className={cn(
                             "p-3 rounded-2xl transition-all shadow-lg",
-                            input.trim() && !isLoading
+                            (input.trim() || attachments.length > 0) && !isLoading
                                 ? "bg-gradient-to-br from-indigo-500 to-violet-600 text-white hover:from-indigo-400 hover:to-violet-500 shadow-indigo-500/25 border border-indigo-400/50"
                                 : "bg-white/[0.05] border border-white/5 text-white/20"
                         )}
