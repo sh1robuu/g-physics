@@ -31,7 +31,7 @@ export default function LoginPage() {
                 return;
             }
 
-            window.location.href = "/dashboard";
+            window.location.href = "/tutor";
         } catch {
             setError("Không thể kết nối server, vui lòng thử lại");
             setIsLoading(false);

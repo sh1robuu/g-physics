@@ -13,6 +13,7 @@ import {
     Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MathRenderer } from "@/components/MathRenderer";
 
 // Mock concept cards - these could be managed by global state (Zustand) later based on page context.
 const contextData = {
@@ -22,8 +23,8 @@ const contextData = {
         chapter: 2
     },
     formulas: [
-        { name: "Vận tốc", formula: "v = λf = λ/T" },
-        { name: "Độ lệch pha", formula: "Δφ = 2πd/λ" }
+        { name: "Vận tốc", formula: "$v = \\lambda f = \\frac{\\lambda}{T}$" },
+        { name: "Độ lệch pha", formula: "$\\Delta\\varphi = \\frac{2\\pi d}{\\lambda}$" }
     ],
     insights: [
         "Bạn thường nhầm lẫn giữa T và f trong tuần qua.",
@@ -113,7 +114,7 @@ export function SmartAssistant() {
                                     {contextData.formulas.map((item, idx) => (
                                         <div key={idx} className="flex flex-col gap-1 p-2.5 rounded-lg bg-indigo-500/5 border border-indigo-500/10">
                                             <span className="text-xs text-white/50">{item.name}</span>
-                                            <span className="text-sm font-mono text-cyan-200">{item.formula}</span>
+                                            <MathRenderer content={item.formula} className="text-sm text-cyan-200" />
                                         </div>
                                     ))}
                                 </div>

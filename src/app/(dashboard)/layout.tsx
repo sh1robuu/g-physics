@@ -21,10 +21,10 @@ import { useState } from "react";
 import { SmartAssistant } from "@/components/SmartAssistant";
 
 const navItems = [
-    { title: "Tổng quan", href: "/dashboard", icon: LayoutDashboard },
     { title: "Gia sư AI", href: "/tutor", icon: Brain },
     { title: "Luyện đề", href: "/practice", icon: Target },
     { title: "Thư viện", href: "/library", icon: Library },
+    { title: "Tổng quan", href: "/dashboard", icon: LayoutDashboard },
     { title: "Hồ sơ học tập", href: "/profile", icon: User },
 ];
 
@@ -57,7 +57,7 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
                 <div className="flex flex-col h-full">
                     {/* Logo */}
                     <div className="p-6 flex items-center justify-between">
-                        <Link href="/dashboard" className="flex items-center gap-2">
+                        <Link href="/tutor" className="flex items-center gap-2">
                             <div className="w-9 h-9 rounded-xl bg-indigo-500/20 flex items-center justify-center">
                                 <Atom className="w-5 h-5 text-indigo-400" />
                             </div>
@@ -103,7 +103,13 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
                             <Settings className="w-5 h-5" />
                             Quản trị
                         </Link>
-                        <button className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/40 hover:text-red-400 hover:bg-red-400/5 transition-all w-full">
+                        <button
+                            onClick={async () => {
+                                await fetch("/api/auth/logout", { method: "POST" });
+                                window.location.href = "/login";
+                            }}
+                            className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/40 hover:text-red-400 hover:bg-red-400/5 transition-all w-full"
+                        >
                             <LogOut className="w-5 h-5" />
                             Đăng xuất
                         </button>
