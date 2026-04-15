@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AuthProvider } from "@/components/AuthProvider";
 
 export const metadata: Metadata = {
   title: "G-Physics | AI-Powered Physics Learning Platform",
@@ -28,7 +29,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="antialiased min-h-screen" style={{ fontFamily: "'Google Sans', system-ui, sans-serif" }}>{children}</body>
+      <body className="antialiased min-h-screen" style={{ fontFamily: "'Google Sans', system-ui, sans-serif" }}>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }
+

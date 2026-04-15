@@ -24,6 +24,7 @@ import { useState } from "react";
 import { SmartAssistant } from "@/components/SmartAssistant";
 import { useChatStore } from "@/lib/store/chat";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/AuthProvider";
 
 const navItems = [
     { title: "Gia sư AI", href: "/tutor", icon: Brain },
@@ -37,6 +38,7 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
     const pathname = usePathname();
     const router = useRouter();
     const { conversations, activeConversationId, createConversation, setActiveConversation, deleteConversation } = useChatStore();
+    const { logout } = useAuth();
 
     return (
         <>
@@ -163,10 +165,7 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
                             Quản trị
                         </Link>
                         <button
-                            onClick={async () => {
-                                await fetch("/api/auth/logout", { method: "POST" });
-                                window.location.href = "/login";
-                            }}
+                            onClick={() => logout()}
                             className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/40 hover:text-red-400 hover:bg-red-400/5 transition-all w-full"
                         >
                             <LogOut className="w-5 h-5" />

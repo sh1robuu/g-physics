@@ -1,96 +1,29 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { motion } from "framer-motion";
-import { Atom, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Atom, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
+import { useAuth } from "@/components/AuthProvider";
 
 export default function LoginPage() {
+    const { login } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
-    const [welcomeUser, setWelcomeUser] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsLoading(true);
         setError("");
-
-        try {
-            const res = await fetch("/api/auth/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password }),
-            });
-            const data = await res.json();
-
-            if (!res.ok) {
-                setError(data.error || "Đăng nhập thất bại");
-                setIsLoading(false);
-                return;
-            }
-
-            // Show welcome animation then redirect
-            setWelcomeUser(data.user?.name || "Học sinh");
-            setTimeout(() => {
-                window.location.href = "/tutor";
-            }, 2000);
-        } catch {
-            setError("Không thể kết nối server, vui lòng thử lại");
+        setIsLoading(true);
+        const result = await login(email, password);
+        if (result.error) {
+            setError(result.error);
             setIsLoading(false);
         }
     };
-
-    // Welcome overlay
-    if (welcomeUser) {
-        return (
-            <main className="min-h-screen flex items-center justify-center relative overflow-hidden">
-                <div className="gradient-orb w-[600px] h-[600px] bg-indigo-500 top-[-200px] right-[-200px]" />
-                <div className="gradient-orb w-[400px] h-[400px] bg-violet-500 bottom-[-100px] left-[-100px]" />
-                <motion.div
-                    className="text-center relative z-10"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.6, ease: "easeOut" }}
-                >
-                    <motion.div
-                        initial={{ scale: 0, rotate: -180 }}
-                        animate={{ scale: 1, rotate: 0 }}
-                        transition={{ delay: 0.1, duration: 0.5, type: "spring" }}
-                        className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500/30 to-violet-500/30 border border-white/20 flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-indigo-500/20"
-                    >
-                        <Atom className="w-10 h-10 text-indigo-400" />
-                    </motion.div>
-                    <motion.h1
-                        className="text-3xl font-bold text-white mb-2"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                    >
-                        Xin chào, {welcomeUser}! 👋
-                    </motion.h1>
-                    <motion.p
-                        className="text-white/50 text-sm"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.5 }}
-                    >
-                        Đang chuẩn bị không gian học tập...
-                    </motion.p>
-                    <motion.div
-                        className="mt-6 flex justify-center"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.7 }}
-                    >
-                        <div className="w-8 h-8 border-2 border-white/20 border-t-indigo-400 rounded-full animate-spin" />
-                    </motion.div>
-                </motion.div>
-            </main>
-        );
-    }
 
     return (
         <main className="min-h-screen flex items-center justify-center px-6 relative">
@@ -115,13 +48,13 @@ export default function LoginPage() {
                 </div>
 
                 <div className="glass-panel p-8">
-                    {error && (
-                        <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-                            {error}
-                        </div>
-                    )}
-
                     <form onSubmit={handleSubmit} className="space-y-5">
+                        {error && (
+                            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+                                {error}
+                            </div>
+                        )}
+
                         <div>
                             <label className="block text-sm font-medium text-white/70 mb-2">Email</label>
                             <div className="relative">
@@ -152,19 +85,15 @@ export default function LoginPage() {
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
                                 >
                                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                 </button>
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between">
-                            <label className="flex items-center gap-2 text-sm text-white/50">
-                                <input type="checkbox" className="rounded border-white/20" />
-                                Ghi nhớ đăng nhập
-                            </label>
-                            <Link href="/forgot-password" className="text-sm text-indigo-400 hover:text-indigo-300">
+                        <div className="flex justify-end">
+                            <Link href="/forgot-password" className="text-xs text-indigo-400 hover:text-indigo-300">
                                 Quên mật khẩu?
                             </Link>
                         </div>
@@ -177,20 +106,18 @@ export default function LoginPage() {
                             {isLoading ? (
                                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                             ) : (
-                                <>
-                                    Đăng nhập <ArrowRight className="w-4 h-4" />
-                                </>
+                                "Đăng nhập"
                             )}
                         </button>
                     </form>
-
-                    <p className="text-center text-sm text-white/40 mt-6">
-                        Chưa có tài khoản?{" "}
-                        <Link href="/signup" className="text-indigo-400 hover:text-indigo-300 font-medium">
-                            Đăng ký miễn phí
-                        </Link>
-                    </p>
                 </div>
+
+                <p className="text-center text-sm text-white/40 mt-6">
+                    Chưa có tài khoản?{" "}
+                    <Link href="/signup" className="text-indigo-400 hover:text-indigo-300 font-medium">
+                        Đăng ký miễn phí
+                    </Link>
+                </p>
             </motion.div>
         </main>
     );

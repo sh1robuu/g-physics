@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,16 +11,16 @@ datasource db {
 // ==================== AUTH ====================
 
 model User {
-  id              String    @id @default(cuid())
-  name            String?
-  email           String    @unique
-  password        String?
-  role            Role      @default(STUDENT)
-  avatar          String?
-  gamification    Boolean   @default(true)
-  preferredMode   TutoringMode @default(AUTO)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id            String       @id @default(cuid())
+  name          String?
+  email         String       @unique
+  password      String?
+  role          Role         @default(STUDENT)
+  avatar        String?
+  gamification  Boolean      @default(true)
+  preferredMode TutoringMode @default(AUTO)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 
   sessions        Session[]
   submissions     ProblemSubmission[]
@@ -30,6 +31,11 @@ model User {
   examAttempts    ExamAttempt[]
   mockTests       MockTest[]
   adminLogs       AdminActionLog[]
+  emailVerified   Boolean             @default(false)
+  image           String?
+  accounts        Account[]
+
+  @@map("user")
 }
 
 enum Role {
@@ -39,12 +45,18 @@ enum Role {
 }
 
 model Session {
-  id           String   @id @default(cuid())
-  userId       String
-  token        String   @unique
-  expiresAt    DateTime
-  createdAt    DateTime @default(now())
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+
+  @@index([userId])
+  @@map("session")
 }
 
 // ==================== TAXONOMY ====================
@@ -70,15 +82,15 @@ model Topic {
 }
 
 model Subtopic {
-  id          String   @id @default(cuid())
-  name        String
-  nameVi      String?
-  slug        String   @unique
-  topicId     String
-  order       Int      @default(0)
-  topic       Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  id      String  @id @default(cuid())
+  name    String
+  nameVi  String?
+  slug    String  @unique
+  topicId String
+  order   Int     @default(0)
+  topic   Topic   @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
-  concepts    Concept[]
+  concepts Concept[]
 }
 
 model Concept {
@@ -86,7 +98,7 @@ model Concept {
   name        String
   nameVi      String?
   description String?
-  formulas    String[]  @default([])
+  formulas    String[] @default([])
   subtopicId  String
   subtopic    Subtopic @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
 }
@@ -94,20 +106,20 @@ model Concept {
 // ==================== TUTORING ====================
 
 model ProblemSubmission {
-  id            String       @id @default(cuid())
-  userId        String
-  topicId       String?
-  questionText  String
-  imageUrl      String?
-  documentUrl   String?
-  mode          TutoringMode
-  status        String       @default("active")
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id           String       @id @default(cuid())
+  userId       String
+  topicId      String?
+  questionText String
+  imageUrl     String?
+  documentUrl  String?
+  mode         TutoringMode
+  status       String       @default("active")
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 
-  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  topic         Topic?       @relation(fields: [topicId], references: [id])
-  responses     AIResponse[]
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic     Topic?       @relation(fields: [topicId], references: [id])
+  responses AIResponse[]
 }
 
 enum TutoringMode {
@@ -119,17 +131,17 @@ enum TutoringMode {
 }
 
 model AIResponse {
-  id              String       @id @default(cuid())
-  submissionId    String
-  responseText    String
-  mode            TutoringMode
-  confidence      Float?
-  stepNumber      Int          @default(1)
-  isGrounded      Boolean      @default(true)
-  metadata        Json?
-  createdAt       DateTime     @default(now())
+  id           String       @id @default(cuid())
+  submissionId String
+  responseText String
+  mode         TutoringMode
+  confidence   Float?
+  stepNumber   Int          @default(1)
+  isGrounded   Boolean      @default(true)
+  metadata     Json?
+  createdAt    DateTime     @default(now())
 
-  submission      ProblemSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  submission ProblemSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 }
 
 // ==================== LEARNER MEMORY ====================
@@ -145,8 +157,8 @@ model LearnerWeakness {
   lastSeen    DateTime @default(now())
   resolved    Boolean  @default(false)
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  topic       Topic    @relation(fields: [topicId], references: [id])
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic Topic @relation(fields: [topicId], references: [id])
 
   @@unique([userId, topicId, category])
 }
@@ -162,7 +174,7 @@ model Recommendation {
   actionUrl   String?
   createdAt   DateTime @default(now())
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // ==================== LIBRARY ====================
@@ -181,21 +193,21 @@ model ResourceItem {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  topic       Topic?   @relation(fields: [topicId], references: [id])
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic Topic? @relation(fields: [topicId], references: [id])
 }
 
 model UploadRecord {
-  id          String   @id @default(cuid())
-  userId      String
-  fileName    String
-  filePath    String
-  fileType    String
-  fileSize    Int
-  status      String   @default("uploaded")
-  createdAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String
+  fileName  String
+  filePath  String
+  fileType  String
+  fileSize  Int
+  status    String   @default("uploaded")
+  createdAt DateTime @default(now())
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // ==================== EXAM BANK ====================
@@ -215,7 +227,7 @@ model ExamQuestion {
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
-  topic         Topic        @relation(fields: [topicId], references: [id])
+  topic         Topic          @relation(fields: [topicId], references: [id])
   attempts      ExamAttempt[]
   mockTestItems MockTestItem[]
 }
@@ -235,38 +247,38 @@ enum QuestionType {
 }
 
 model ExamAttempt {
-  id             String       @id @default(cuid())
+  id             String   @id @default(cuid())
   userId         String
   questionId     String
   selectedAnswer String?
   isCorrect      Boolean
   timeSpent      Int?
-  createdAt      DateTime     @default(now())
+  createdAt      DateTime @default(now())
 
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  question       ExamQuestion @relation(fields: [questionId], references: [id])
+  user     User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question ExamQuestion @relation(fields: [questionId], references: [id])
 }
 
 // ==================== MOCK TESTS ====================
 
 model MockTest {
-  id          String   @id @default(cuid())
-  userId      String
-  title       String
-  topicFocus  String?
-  difficulty  Difficulty @default(MEDIUM)
+  id             String     @id @default(cuid())
+  userId         String
+  title          String
+  topicFocus     String?
+  difficulty     Difficulty @default(MEDIUM)
   totalQuestions Int
-  score       Float?
-  timeLimit   Int?
-  completedAt DateTime?
-  createdAt   DateTime @default(now())
+  score          Float?
+  timeLimit      Int?
+  completedAt    DateTime?
+  createdAt      DateTime   @default(now())
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items       MockTestItem[]
+  user  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items MockTestItem[]
 }
 
 model MockTestItem {
-  id             String       @id @default(cuid())
+  id             String   @id @default(cuid())
   mockTestId     String
   questionId     String
   order          Int
@@ -274,32 +286,64 @@ model MockTestItem {
   isCorrect      Boolean?
   timeSpent      Int?
 
-  mockTest       MockTest     @relation(fields: [mockTestId], references: [id], onDelete: Cascade)
-  question       ExamQuestion @relation(fields: [questionId], references: [id])
+  mockTest MockTest     @relation(fields: [mockTestId], references: [id], onDelete: Cascade)
+  question ExamQuestion @relation(fields: [questionId], references: [id])
 }
 
 // ==================== KNOWLEDGE BASE ====================
 
 model TeacherApprovedSource {
-  id          String   @id @default(cuid())
-  title       String
-  content     String
-  topicArea   String?
-  sourceType  String
-  verified    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+  title      String
+  content    String
+  topicArea  String?
+  sourceType String
+  verified   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 // ==================== ADMIN ====================
 
 model AdminActionLog {
-  id          String   @id @default(cuid())
-  userId      String
-  action      String
-  target      String
-  details     Json?
-  createdAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  target    String
+  details   Json?
+  createdAt DateTime @default(now())
 
-  user        User     @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
 }
