@@ -29,6 +29,10 @@ import { useTranslation } from "@/lib/i18n";
 import { SettingsToggles } from "@/components/SettingsToggles";
 import { WelcomeScreen } from "@/components/WelcomeScreen";
 import { OnboardingWalkthrough } from "@/components/OnboardingWalkthrough";
+import { NotificationBell } from "@/components/NotificationBell";
+import { PomodoroTimer } from "@/components/PomodoroTimer";
+import { CommandPalette } from "@/components/CommandPalette";
+import { UserAvatarDropdown } from "@/components/UserAvatarDropdown";
 
 function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
     const pathname = usePathname();
@@ -254,24 +258,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="flex-1 flex flex-col lg:ml-64 relative z-10 w-full h-screen overflow-hidden text-white">
                 {/* Top bar (Floating) */}
                 <header className="flex-none z-30 bg-transparent px-4 lg:px-8 py-5">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
                         <button
                             onClick={() => setSidebarOpen(true)}
                             className="lg:hidden p-2 rounded-xl bg-white/5 border border-white/10 text-white/70 hover:text-white"
                         >
                             <Menu className="w-5 h-5" />
                         </button>
-                        <div className="hidden lg:block">
+                        <div className="hidden lg:block shrink-0">
                             <h2 className="text-xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">{t("sidebar.workspace")}</h2>
                         </div>
-                        <div className="flex items-center gap-4">
+                        <div className="flex-1 hidden lg:block">
+                            <CommandPalette />
+                        </div>
+                        <div className="flex items-center gap-3 shrink-0">
                             <div className="stat-badge stat-badge-info glass-panel border border-indigo-500/30 px-3 py-1.5 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
                                 <Atom className="w-3.5 h-3.5 mr-1 text-indigo-400" />
                                 <span className="text-indigo-200">{t("sidebar.aiActive")}</span>
                             </div>
-                            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500/30 to-violet-500/30 border border-white/10 flex items-center justify-center text-sm font-bold text-white shadow-lg backdrop-blur-md cursor-pointer hover:border-white/20 transition-colors">
-                                {(() => { try { return (user?.name || 'U').slice(0, 2).toUpperCase(); } catch { return 'U'; } })()}
-                            </div>
+                            <NotificationBell />
+                            <UserAvatarDropdown />
                         </div>
                     </div>
                 </header>
@@ -295,6 +301,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </aside>
                 </div>
             </div>
+
+            {/* Pomodoro Timer (floating) */}
+            <PomodoroTimer />
         </div>
     );
 }

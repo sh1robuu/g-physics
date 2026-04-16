@@ -135,8 +135,53 @@ const en: Record<TranslationKey, string> = {
     "auth.forgot.subtitle": "Enter your email and we'll send a reset link",
     "auth.forgot.button": "Send reset link",
     "auth.forgot.back": "Back to sign in",
+    "auth.forgot.sent": "Email sent!",
+    "auth.forgot.sentDesc": "Check your inbox at",
 
     "auth.errorCode": "Error code",
+
+    // Streak & Gamification
+    "streak.title": "Study Streak",
+    "streak.days": "days in a row",
+    "streak.xp": "Experience",
+    "streak.level": "Level",
+    "streak.todayDone": "Checked in today ✓",
+    "streak.todayPending": "Study today to keep your streak!",
+    "streak.badge.newcomer": "Newcomer",
+    "streak.badge.learner": "Learner",
+    "streak.badge.scholar": "Scholar",
+    "streak.badge.master": "Master",
+    "streak.badge.legend": "Legend",
+
+    // Notifications
+    "notification.title": "Notifications",
+    "notification.empty": "No new notifications",
+    "notification.studyReminder": "Don't forget to study today!",
+    "notification.streakWarning": "Your streak is about to end! Study now.",
+    "notification.markRead": "Mark as read",
+    "notification.clearAll": "Clear all",
+
+    // Pomodoro
+    "pomodoro.title": "Pomodoro Timer",
+    "pomodoro.focus": "Focus",
+    "pomodoro.shortBreak": "Short Break",
+    "pomodoro.longBreak": "Long Break",
+    "pomodoro.start": "Start",
+    "pomodoro.pause": "Pause",
+    "pomodoro.reset": "Reset",
+    "pomodoro.sessions": "sessions",
+
+    // Mock Exam
+    "mockExam.title": "Mock Exam",
+    "mockExam.generate": "Generate Mock Exam",
+    "mockExam.questions": "questions",
+    "mockExam.timeLimit": "Time limit",
+    "mockExam.minutes": "minutes",
+    "mockExam.submit": "Submit",
+    "mockExam.result": "Result",
+    "mockExam.score": "Score",
+    "mockExam.review": "Review",
+    "mockExam.exportPdf": "Export PDF",
 
     // Dashboard
     "dashboard.greeting": "Hey,",

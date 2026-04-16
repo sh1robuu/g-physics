@@ -12,6 +12,7 @@ import {
 import Link from "next/link";
 import { useAuth } from "@/components/AuthProvider";
 import { useTranslation } from "@/lib/i18n";
+import { StreakCard } from "@/components/StreakCard";
 
 const fadeIn = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 } };
 
@@ -27,6 +28,9 @@ export default function DashboardPage() {
                 <h1 className="text-2xl font-bold text-white mb-1">{t("dashboard.greeting")} {displayName}! 👋</h1>
                 <p className="text-white/50 text-sm">{t("dashboard.subtitle")}</p>
             </motion.div>
+
+            {/* Streak & Gamification */}
+            <StreakCard />
 
             {/* Quick Actions */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

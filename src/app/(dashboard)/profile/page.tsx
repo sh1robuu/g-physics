@@ -18,7 +18,8 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useTranslation } from "@/lib/i18n";
 import { useAuth } from "@/components/AuthProvider";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { ProgressCharts } from "@/components/ProgressCharts";
 
 interface ProfileStats {
     totalQuestions: number;
@@ -50,6 +51,30 @@ export default function ProfilePage() {
     const [editName, setEditName] = useState("");
     const [saving, setSaving] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Load avatar from localStorage on mount
+    useEffect(() => {
+        const saved = localStorage.getItem("g-physics-avatar");
+        if (saved) setAvatarUrl(saved);
+    }, []);
+
+    const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (file.size > 2 * 1024 * 1024) {
+            alert("File too large. Max 2MB.");
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const dataUrl = ev.target?.result as string;
+            setAvatarUrl(dataUrl);
+            localStorage.setItem("g-physics-avatar", dataUrl);
+        };
+        reader.readAsDataURL(file);
+    };
 
     const fetchProfile = useCallback(async () => {
         try {
@@ -177,13 +202,30 @@ export default function ProfilePage() {
                 <div className="flex items-start gap-5">
                     {/* Avatar */}
                     <div className="relative group">
-                        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500/30 to-violet-500/30 border border-white/10 flex items-center justify-center text-2xl font-bold text-white">
-                            {profile?.avatar ? (
-                                <img src={profile.avatar} alt="" className="w-full h-full rounded-2xl object-cover" />
+                        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500/30 to-violet-500/30 border border-white/10 flex items-center justify-center text-2xl font-bold text-white overflow-hidden">
+                            {avatarUrl ? (
+                                <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+                            ) : profile?.avatar ? (
+                                <img src={profile.avatar} alt="" className="w-full h-full object-cover" />
                             ) : (
                                 initials || <User className="w-8 h-8 text-white/50" />
                             )}
                         </div>
+                        {/* Camera overlay */}
+                        <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="absolute inset-0 rounded-2xl bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                        >
+                            <Camera className="w-5 h-5 text-white" />
+                        </button>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleAvatarUpload}
+                        />
                     </div>
 
                     {/* Info */}
@@ -267,41 +309,46 @@ export default function ProfilePage() {
 
             {/* Activity or Empty State */}
             {hasActivity ? (
-                <motion.div
-                    className="glass-panel p-6"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                >
-                    <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                        <BarChart3 className="w-5 h-5 text-indigo-400" />
-                        {t("profile.activityTitle")}
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="glass-card p-4">
-                            <div className="text-sm text-white/50 mb-2">{t("profile.examBreakdown")}</div>
-                            <div className="flex items-baseline gap-2">
-                                <span className="text-2xl font-bold text-emerald-400">{stats?.correctAnswers || 0}</span>
-                                <span className="text-white/30 text-sm">/ {stats?.totalExamAttempts || 0} {t("profile.questionsCorrect")}</span>
-                            </div>
-                            {stats && stats.totalExamAttempts > 0 && (
-                                <div className="mt-3 h-2 rounded-full bg-white/5 overflow-hidden">
-                                    <div
-                                        className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 transition-all duration-1000"
-                                        style={{ width: `${stats.accuracy || 0}%` }}
-                                    />
+                <>
+                    <motion.div
+                        className="glass-panel p-6"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                    >
+                        <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <BarChart3 className="w-5 h-5 text-indigo-400" />
+                            {t("profile.activityTitle")}
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="glass-card p-4">
+                                <div className="text-sm text-white/50 mb-2">{t("profile.examBreakdown")}</div>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-2xl font-bold text-emerald-400">{stats?.correctAnswers || 0}</span>
+                                    <span className="text-white/30 text-sm">/ {stats?.totalExamAttempts || 0} {t("profile.questionsCorrect")}</span>
                                 </div>
-                            )}
-                        </div>
-                        <div className="glass-card p-4">
-                            <div className="text-sm text-white/50 mb-2">{t("profile.totalSubmissions")}</div>
-                            <div className="flex items-baseline gap-2">
-                                <span className="text-2xl font-bold text-indigo-400">{stats?.totalQuestions || 0}</span>
-                                <span className="text-white/30 text-sm">{t("profile.questionsAsked")}</span>
+                                {stats && stats.totalExamAttempts > 0 && (
+                                    <div className="mt-3 h-2 rounded-full bg-white/5 overflow-hidden">
+                                        <div
+                                            className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 transition-all duration-1000"
+                                            style={{ width: `${stats.accuracy || 0}%` }}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                            <div className="glass-card p-4">
+                                <div className="text-sm text-white/50 mb-2">{t("profile.totalSubmissions")}</div>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-2xl font-bold text-indigo-400">{stats?.totalQuestions || 0}</span>
+                                    <span className="text-white/30 text-sm">{t("profile.questionsAsked")}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </motion.div>
+                    </motion.div>
+
+                    {/* Progress Charts */}
+                    <ProgressCharts />
+                </>
             ) : (
                 <motion.div
                     className="glass-panel p-10 text-center"

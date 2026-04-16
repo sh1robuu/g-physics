@@ -10,14 +10,30 @@ export default function ForgotPasswordPage() {
     const [email, setEmail] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [sent, setSent] = useState(false);
+    const [error, setError] = useState("");
     const { t } = useTranslation();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        await new Promise((r) => setTimeout(r, 1500));
-        setSent(true);
-        setIsLoading(false);
+        setError("");
+        try {
+            const res = await fetch("/api/auth/forget-password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, redirectTo: "/reset-password" }),
+            });
+            if (res.ok) {
+                setSent(true);
+            } else {
+                const data = await res.json().catch(() => ({}));
+                setError(data.message || t("common.error"));
+            }
+        } catch {
+            setError(t("common.error"));
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -47,9 +63,9 @@ export default function ForgotPasswordPage() {
                             <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-4">
                                 <Send className="w-7 h-7 text-emerald-400" />
                             </div>
-                            <h3 className="text-lg font-semibold text-white mb-2">Đã gửi email!</h3>
+                            <h3 className="text-lg font-semibold text-white mb-2">{t("auth.forgot.sent")}</h3>
                             <p className="text-sm text-white/50 mb-6">
-                                Kiểm tra hộp thư của bạn tại <strong className="text-white/70">{email}</strong>
+                                {t("auth.forgot.sentDesc")} <strong className="text-white/70">{email}</strong>
                             </p>
                             <Link href="/login" className="btn-secondary inline-flex items-center gap-2">
                                 <ArrowLeft className="w-4 h-4" /> {t("auth.forgot.back")}
@@ -57,6 +73,11 @@ export default function ForgotPasswordPage() {
                         </div>
                     ) : (
                         <form onSubmit={handleSubmit} className="space-y-5">
+                            {error && (
+                                <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-300">
+                                    {error}
+                                </div>
+                            )}
                             <div>
                                 <label className="block text-sm font-medium text-white/70 mb-2">Email</label>
                                 <div className="relative">

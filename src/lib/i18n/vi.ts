@@ -134,8 +134,53 @@ const vi = {
     "auth.forgot.subtitle": "Nhập email để nhận liên kết đặt lại mật khẩu",
     "auth.forgot.button": "Gửi liên kết",
     "auth.forgot.back": "Quay lại đăng nhập",
+    "auth.forgot.sent": "Đã gửi email!",
+    "auth.forgot.sentDesc": "Kiểm tra hộp thư của bạn tại",
 
     "auth.errorCode": "Mã lỗi",
+
+    // Streak & Gamification
+    "streak.title": "Chuỗi ngày học",
+    "streak.days": "ngày liên tiếp",
+    "streak.xp": "Kinh nghiệm",
+    "streak.level": "Cấp độ",
+    "streak.todayDone": "Đã check-in hôm nay ✓",
+    "streak.todayPending": "Học hôm nay để giữ chuỗi!",
+    "streak.badge.newcomer": "Người mới",
+    "streak.badge.learner": "Học viên",
+    "streak.badge.scholar": "Học giả",
+    "streak.badge.master": "Bậc thầy",
+    "streak.badge.legend": "Huyền thoại",
+
+    // Notifications
+    "notification.title": "Thông báo",
+    "notification.empty": "Không có thông báo mới",
+    "notification.studyReminder": "Đừng quên học hôm nay!",
+    "notification.streakWarning": "Chuỗi ngày học sắp mất! Hãy học ngay.",
+    "notification.markRead": "Đánh dấu đã đọc",
+    "notification.clearAll": "Xóa tất cả",
+
+    // Pomodoro
+    "pomodoro.title": "Pomodoro Timer",
+    "pomodoro.focus": "Tập trung",
+    "pomodoro.shortBreak": "Nghỉ ngắn",
+    "pomodoro.longBreak": "Nghỉ dài",
+    "pomodoro.start": "Bắt đầu",
+    "pomodoro.pause": "Tạm dừng",
+    "pomodoro.reset": "Đặt lại",
+    "pomodoro.sessions": "phiên",
+
+    // Mock Exam
+    "mockExam.title": "Thi thử",
+    "mockExam.generate": "Tạo đề thi thử",
+    "mockExam.questions": "câu hỏi",
+    "mockExam.timeLimit": "Giới hạn thời gian",
+    "mockExam.minutes": "phút",
+    "mockExam.submit": "Nộp bài",
+    "mockExam.result": "Kết quả",
+    "mockExam.score": "Điểm",
+    "mockExam.review": "Xem lại",
+    "mockExam.exportPdf": "Xuất PDF",
 
     // Dashboard
     "dashboard.greeting": "Xin chào,",
