@@ -24,7 +24,7 @@ export async function POST(request: Request) {
 
         const clamp = (v: number) => Math.min(5, Math.max(0, Number(v) || 0));
 
-        const feedback = await prisma.feedback.create({
+        const feedback = await (prisma as any).feedback.create({
             data: {
                 userId: session.user.id,
                 grade: grade || "12",
@@ -70,7 +70,7 @@ export async function GET(request: Request) {
                 return NextResponse.json({ error: "Forbidden" }, { status: 403 });
             }
 
-            const feedbacks = await prisma.feedback.findMany({
+            const feedbacks = await (prisma as any).feedback.findMany({
                 orderBy: { createdAt: "desc" },
                 take: 100,
                 include: {
@@ -79,27 +79,28 @@ export async function GET(request: Request) {
             });
 
             // Aggregate stats
-            const all = await prisma.feedback.findMany({ select: { ratingOverall: true, ratingUI: true, ratingContent: true, ratingAI: true, ratingUX: true, grade: true, category: true } });
+            type FeedbackRow = { ratingOverall: number; ratingUI: number; ratingContent: number; ratingAI: number; ratingUX: number; grade: string; category: string };
+            const all: FeedbackRow[] = await (prisma as any).feedback.findMany({ select: { ratingOverall: true, ratingUI: true, ratingContent: true, ratingAI: true, ratingUX: true, grade: true, category: true } });
             const totalCount = all.length;
-            const avg = (arr: number[]) => arr.length ? +(arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(1) : 0;
-            const nonZero = (arr: number[]) => arr.filter(v => v > 0);
+            const avg = (arr: number[]) => arr.length ? +(arr.reduce((a: number, b: number) => a + b, 0) / arr.length).toFixed(1) : 0;
+            const nonZero = (arr: number[]) => arr.filter((v: number) => v > 0);
 
             const stats = {
                 total: totalCount,
-                avgOverall: avg(all.map(f => f.ratingOverall)),
-                avgUI: avg(nonZero(all.map(f => f.ratingUI))),
-                avgContent: avg(nonZero(all.map(f => f.ratingContent))),
-                avgAI: avg(nonZero(all.map(f => f.ratingAI))),
-                avgUX: avg(nonZero(all.map(f => f.ratingUX))),
+                avgOverall: avg(all.map((f: FeedbackRow) => f.ratingOverall)),
+                avgUI: avg(nonZero(all.map((f: FeedbackRow) => f.ratingUI))),
+                avgContent: avg(nonZero(all.map((f: FeedbackRow) => f.ratingContent))),
+                avgAI: avg(nonZero(all.map((f: FeedbackRow) => f.ratingAI))),
+                avgUX: avg(nonZero(all.map((f: FeedbackRow) => f.ratingUX))),
                 byGrade: Object.entries(
-                    all.reduce((acc, f) => { acc[f.grade] = (acc[f.grade] || 0) + 1; return acc; }, {} as Record<string, number>)
+                    all.reduce((acc: Record<string, number>, f: FeedbackRow) => { acc[f.grade] = (acc[f.grade] || 0) + 1; return acc; }, {} as Record<string, number>)
                 ).map(([grade, count]) => ({ grade, count })),
                 byCategory: Object.entries(
-                    all.reduce((acc, f) => { acc[f.category] = (acc[f.category] || 0) + 1; return acc; }, {} as Record<string, number>)
+                    all.reduce((acc: Record<string, number>, f: FeedbackRow) => { acc[f.category] = (acc[f.category] || 0) + 1; return acc; }, {} as Record<string, number>)
                 ).map(([category, count]) => ({ category, count })),
-                ratingDistribution: [1, 2, 3, 4, 5].map(r => ({
+                ratingDistribution: [1, 2, 3, 4, 5].map((r: number) => ({
                     rating: r,
-                    count: all.filter(f => f.ratingOverall === r).length,
+                    count: all.filter((f: FeedbackRow) => f.ratingOverall === r).length,
                 })),
             };
 
@@ -107,7 +108,7 @@ export async function GET(request: Request) {
         }
 
         // Regular users see own feedback
-        const feedbacks = await prisma.feedback.findMany({
+        const feedbacks = await (prisma as any).feedback.findMany({
             where: { userId: session.user.id },
             orderBy: { createdAt: "desc" },
             take: 20,
