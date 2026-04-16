@@ -451,8 +451,8 @@ function Footer() {
   return (
     <footer className="border-t border-white/5 py-12 px-6">
       <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="md:col-span-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div>
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center">
                 <Atom className="w-5 h-5 text-indigo-400" />
@@ -466,22 +466,28 @@ function Footer() {
           <div>
             <h4 className="text-sm font-semibold text-white mb-3">{t("footer.product")}</h4>
             <ul className="space-y-2 text-sm text-white/40">
-              <li><Link href="/tutor" className="hover:text-white/70 transition-colors">{t("footer.aiTutor")}</Link></li>
-              <li><Link href="/practice" className="hover:text-white/70 transition-colors">{t("footer.practice")}</Link></li>
-              <li><Link href="/library" className="hover:text-white/70 transition-colors">{t("footer.library")}</Link></li>
+              <li><Link href="/login" className="hover:text-white/70 transition-colors">{t("footer.aiTutor")}</Link></li>
+              <li><Link href="/login" className="hover:text-white/70 transition-colors">{t("footer.practice")}</Link></li>
+              <li><Link href="/login" className="hover:text-white/70 transition-colors">{t("footer.library")}</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="text-sm font-semibold text-white mb-3">{t("footer.support")}</h4>
-            <ul className="space-y-2 text-sm text-white/40">
-              <li><span className="text-white/20 cursor-default">{t("footer.guide")}</span></li>
-              <li><span className="text-white/20 cursor-default">{t("footer.contact")}</span></li>
-              <li><span className="text-white/20 cursor-default">{t("footer.terms")}</span></li>
+            <h4 className="text-sm font-semibold text-white mb-3">Contact</h4>
+            <ul className="space-y-2.5 text-sm text-white/40">
+              <li className="flex items-center gap-2">
+                <svg className="w-4 h-4 text-white/30 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
+                <a href="mailto:quocnam03.31@gmail.com" className="hover:text-white/70 transition-colors">quocnam03.31@gmail.com</a>
+              </li>
+              <li className="flex items-center gap-2">
+                <svg className="w-4 h-4 text-white/30 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" /></svg>
+                <a href="https://instagram.com/sh1robu" target="_blank" rel="noopener noreferrer" className="hover:text-white/70 transition-colors">@sh1robu</a>
+              </li>
             </ul>
           </div>
         </div>
-        <div className="mt-8 pt-8 border-t border-white/5 text-center text-sm text-white/30">
-          {t("footer.copyright")}
+        <div className="mt-8 pt-8 border-t border-white/5 text-center">
+          <p className="text-sm text-white/30">Made by <span className="text-white/50 font-medium">GiCoffee Team</span></p>
+          <p className="text-xs text-white/20 mt-1">Contact: Pham Quoc Nam</p>
         </div>
       </div>
     </footer>
