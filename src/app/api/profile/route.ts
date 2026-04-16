@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth-server";
 import { prisma } from "@/lib/db";
-import { headers } from "next/headers";
 
 // GET /api/profile — fetch user profile + learning stats
-export async function GET() {
+export async function GET(req: NextRequest) {
     try {
         const session = await auth.api.getSession({
-            headers: await headers(),
+            headers: req.headers,
         });
 
         if (!session?.user?.id) {
@@ -77,7 +76,7 @@ export async function GET() {
 export async function PUT(req: NextRequest) {
     try {
         const session = await auth.api.getSession({
-            headers: await headers(),
+            headers: req.headers,
         });
 
         if (!session?.user?.id) {

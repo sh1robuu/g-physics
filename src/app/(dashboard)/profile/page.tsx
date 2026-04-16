@@ -53,18 +53,34 @@ export default function ProfilePage() {
 
     const fetchProfile = useCallback(async () => {
         try {
-            const res = await fetch("/api/profile");
+            const res = await fetch("/api/profile", {
+                credentials: "include",
+            });
             if (res.ok) {
                 const data = await res.json();
                 setProfile(data.user);
                 setStats(data.stats);
+            } else {
+                // Fallback: use auth context data
+                if (authUser) {
+                    setProfile({
+                        id: (authUser as Record<string, unknown>).id as string || "",
+                        name: authUser.name || null,
+                        email: (authUser as Record<string, unknown>).email as string || "",
+                        avatar: null,
+                        role: ((authUser as Record<string, unknown>).role as string) || "STUDENT",
+                        preferredMode: "AUTO",
+                        gamification: true,
+                        createdAt: new Date().toISOString(),
+                    });
+                }
             }
         } catch (err) {
             console.error("[Profile]", err);
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [authUser]);
 
     useEffect(() => {
         fetchProfile();
@@ -75,6 +91,7 @@ export default function ProfilePage() {
         try {
             const res = await fetch("/api/profile", {
                 method: "PUT",
+                credentials: "include",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name: editName }),
             });
