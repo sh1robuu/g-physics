@@ -174,6 +174,12 @@ const vi = {
     "profile.emptyTitle": "Chưa có dữ liệu học tập",
     "profile.emptyDesc": "Hãy bắt đầu học và luyện đề để hệ thống phân tích điểm mạnh, điểm yếu và tiến bộ của bạn.",
     "profile.startButton": "Bắt đầu học",
+    "profile.joined": "Tham gia từ",
+    "profile.activityTitle": "Tổng quan hoạt động",
+    "profile.examBreakdown": "Kết quả thi",
+    "profile.questionsCorrect": "câu đúng",
+    "profile.totalSubmissions": "Câu hỏi đã đặt",
+    "profile.questionsAsked": "câu hỏi",
 
     // Tutor
     "tutor.inputPlaceholder": "Nhập câu hỏi Vật lý...",

@@ -175,6 +175,12 @@ const en: Record<TranslationKey, string> = {
     "profile.emptyTitle": "No data yet",
     "profile.emptyDesc": "Start studying and practicing — the system will analyze your strengths, weak spots, and progress over time.",
     "profile.startButton": "Start learning",
+    "profile.joined": "Joined",
+    "profile.activityTitle": "Activity Overview",
+    "profile.examBreakdown": "Exam Results",
+    "profile.questionsCorrect": "correct",
+    "profile.totalSubmissions": "Questions Asked",
+    "profile.questionsAsked": "questions",
 
     // Tutor
     "tutor.inputPlaceholder": "Type a Physics question...",
