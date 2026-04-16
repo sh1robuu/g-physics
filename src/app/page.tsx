@@ -472,7 +472,8 @@ function Footer() {
             </ul>
           </div>
           <div>
-            <h4 className="text-sm font-semibold text-white mb-3">Contact</h4>
+            <h4 className="text-sm font-semibold text-white mb-1">Pham Quoc Nam</h4>
+            <p className="text-xs text-white/30 mb-3">Contact</p>
             <ul className="space-y-2.5 text-sm text-white/40">
               <li className="flex items-center gap-2">
                 <svg className="w-4 h-4 text-white/30 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
@@ -487,7 +488,6 @@ function Footer() {
         </div>
         <div className="mt-8 pt-8 border-t border-white/5 text-center">
           <p className="text-sm text-white/30">Made by <span className="text-white/50 font-medium">GiCoffee Team</span></p>
-          <p className="text-xs text-white/20 mt-1">Contact: Pham Quoc Nam</p>
         </div>
       </div>
     </footer>
