@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
+import { AppInitializer } from "@/components/AppInitializer";
 
 export const metadata: Metadata = {
   title: "G-Physics | AI-Powered Physics Learning Platform",
@@ -22,17 +23,31 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi" className="dark">
+    <html lang="vi" data-theme="dark" suppressHydrationWarning>
       <head>
         <link
           href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap"
           rel="stylesheet"
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var t = localStorage.getItem('g-physics-theme') || 'dark';
+                  document.documentElement.setAttribute('data-theme', t);
+                  var l = localStorage.getItem('g-physics-lang') || 'vi';
+                  document.documentElement.setAttribute('lang', l);
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
       </head>
       <body className="antialiased min-h-screen" style={{ fontFamily: "'Google Sans', system-ui, sans-serif" }}>
+        <AppInitializer />
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
 }
-

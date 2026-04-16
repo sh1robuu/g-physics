@@ -21,6 +21,8 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import { useTranslation } from "@/lib/i18n";
+import { SettingsToggles } from "@/components/SettingsToggles";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 30 },
@@ -34,16 +36,17 @@ const stagger = {
 
 // ==================== NAVBAR ====================
 
-const navLinks = [
-  { label: "Tính năng", href: "#features" },
-  { label: "Cách hoạt động", href: "#how-it-works" },
-  { label: "So sánh", href: "#compare" },
-  { label: "Tài nguyên", href: "#trust" },
-];
-
 function Navbar() {
+  const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const navLinks = [
+    { label: t("nav.features"), href: "#features" },
+    { label: t("nav.howItWorks"), href: "#how-it-works" },
+    { label: t("nav.compare"), href: "#compare" },
+    { label: t("nav.resources"), href: "#trust" },
+  ];
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 30);
@@ -65,7 +68,6 @@ function Navbar() {
             : "bg-[#0c0d1f]/60 backdrop-blur-xl border-white/[0.06]"
             }`}
         >
-          {/* Logo */}
           <Link href="/" className="flex items-center gap-2 pl-2 shrink-0">
             <div className="w-8 h-8 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center">
               <Atom className="w-4 h-4 text-indigo-400" />
@@ -73,7 +75,6 @@ function Navbar() {
             <span className="text-sm font-bold text-white hidden sm:inline">G-Physics</span>
           </Link>
 
-          {/* Desktop Nav Links */}
           <div className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (
               <a
@@ -86,13 +87,13 @@ function Navbar() {
             ))}
           </div>
 
-          {/* CTA + Mobile Toggle */}
           <div className="flex items-center gap-2">
+            <SettingsToggles compact />
             <Link
               href="/login"
               className="hidden sm:inline-flex items-center px-5 py-2 rounded-full text-sm font-medium bg-white text-[#0c0d1f] hover:bg-white/90 transition-colors"
             >
-              Đăng nhập
+              {t("common.login")}
             </Link>
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
@@ -104,7 +105,6 @@ function Navbar() {
         </div>
       </motion.nav>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -130,14 +130,14 @@ function Navbar() {
                   onClick={() => setMobileOpen(false)}
                   className="px-5 py-3.5 text-base text-white/70 rounded-2xl hover:bg-white/5 text-center"
                 >
-                  Đăng nhập
+                  {t("common.login")}
                 </Link>
                 <Link
                   href="/signup"
                   onClick={() => setMobileOpen(false)}
                   className="px-5 py-3.5 text-base font-medium text-[#0c0d1f] bg-white rounded-2xl text-center hover:bg-white/90"
                 >
-                  Bắt đầu miễn phí
+                  {t("common.startFree")}
                 </Link>
               </div>
             </div>
@@ -151,9 +151,10 @@ function Navbar() {
 // ==================== HERO ====================
 
 function HeroSection() {
+  const { t } = useTranslation();
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-6">
-      {/* Background orbs */}
       <div className="gradient-orb w-[500px] h-[500px] bg-indigo-500 top-[-100px] left-[-100px]" style={{ animation: "pulse-glow 4s ease-in-out infinite" }} />
       <div className="gradient-orb w-[400px] h-[400px] bg-cyan-500 bottom-[-50px] right-[-50px]" style={{ animation: "pulse-glow 5s ease-in-out infinite 1s" }} />
       <div className="gradient-orb w-[300px] h-[300px] bg-violet-500 top-[40%] right-[20%]" style={{ animation: "pulse-glow 6s ease-in-out infinite 2s" }} />
@@ -167,7 +168,7 @@ function HeroSection() {
         <motion.div variants={fadeInUp} className="mb-6">
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
             <Atom className="w-4 h-4" />
-            Nền tảng học Vật lý thông minh
+            {t("hero.badge")}
           </span>
         </motion.div>
 
@@ -175,17 +176,16 @@ function HeroSection() {
           variants={fadeInUp}
           className="text-5xl md:text-7xl font-extrabold leading-tight mb-6"
         >
-          <span className="gradient-text">G-Physics</span>
+          <span className="gradient-text">{t("hero.title1")}</span>
           <br />
-          <span className="text-white/90">Gia sư AI cho Vật lý 12</span>
+          <span className="text-white/90">{t("hero.title2")}</span>
         </motion.h1>
 
         <motion.p
           variants={fadeInUp}
           className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto mb-10 leading-relaxed"
         >
-          Không chỉ là chatbot AI — đây là hệ thống học tập có cấu trúc giúp bạn
-          hiểu sâu, luyện đề hiệu quả, và tự tin bước vào kỳ thi THPT Quốc gia.
+          {t("hero.subtitle")}
         </motion.p>
 
         <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -193,26 +193,25 @@ function HeroSection() {
             href="/signup"
             className="btn-primary inline-flex items-center gap-2 text-base px-8 py-4 rounded-xl"
           >
-            Bắt đầu học miễn phí
+            {t("hero.cta")}
             <ArrowRight className="w-5 h-5" />
           </Link>
           <Link
             href="/login"
             className="btn-secondary inline-flex items-center gap-2 text-base px-8 py-4 rounded-xl"
           >
-            Đăng nhập
+            {t("common.login")}
           </Link>
         </motion.div>
 
-        {/* Stats */}
         <motion.div
           variants={fadeInUp}
           className="mt-16 grid grid-cols-3 gap-8 max-w-lg mx-auto"
         >
           {[
-            { value: "4", label: "Chế độ hỗ trợ" },
-            { value: "7+", label: "Chương Vật lý" },
-            { value: "24/7", label: "Sẵn sàng hỗ trợ" },
+            { value: t("hero.stat1.value"), label: t("hero.stat1.label") },
+            { value: t("hero.stat2.value"), label: t("hero.stat2.label") },
+            { value: t("hero.stat3.value"), label: t("hero.stat3.label") },
           ].map((stat) => (
             <div key={stat.label} className="text-center">
               <div className="text-2xl md:text-3xl font-bold gradient-text">{stat.value}</div>
@@ -227,42 +226,36 @@ function HeroSection() {
 
 // ==================== FEATURES ====================
 
-const features = [
-  {
-    icon: Lightbulb,
-    title: "Gợi ý thông minh",
-    description: "Đưa ra câu hỏi dẫn dắt giúp bạn tự tìm ra hướng giải, không đưa đáp án ngay.",
-    color: "text-amber-400",
-    bg: "bg-amber-400/10",
-    border: "border-amber-400/20",
-  },
-  {
-    icon: BookOpen,
-    title: "Giải thích khái niệm",
-    description: "Nhắc lại định luật, nguyên lý và công thức liên quan — giúp bạn hiểu BẢN CHẤT vật lý.",
-    color: "text-cyan-400",
-    bg: "bg-cyan-400/10",
-    border: "border-cyan-400/20",
-  },
-  {
-    icon: Target,
-    title: "Hướng dẫn từng bước",
-    description: "Chia bài toán phức tạp thành các bước nhỏ, yêu cầu bạn tham gia giải từng phần.",
-    color: "text-emerald-400",
-    bg: "bg-emerald-400/10",
-    border: "border-emerald-400/20",
-  },
-  {
-    icon: GraduationCap,
-    title: "Giải đầy đủ",
-    description: "Lời giải hoàn chỉnh theo format bài thi — trình bày rõ ràng từ tóm tắt đến kết luận.",
-    color: "text-violet-400",
-    bg: "bg-violet-400/10",
-    border: "border-violet-400/20",
-  },
-];
-
 function FeaturesSection() {
+  const { t } = useTranslation();
+
+  const features = [
+    {
+      icon: Lightbulb,
+      title: t("features.hint.title"),
+      description: t("features.hint.desc"),
+      color: "text-amber-400", bg: "bg-amber-400/10", border: "border-amber-400/20",
+    },
+    {
+      icon: BookOpen,
+      title: t("features.concept.title"),
+      description: t("features.concept.desc"),
+      color: "text-cyan-400", bg: "bg-cyan-400/10", border: "border-cyan-400/20",
+    },
+    {
+      icon: Target,
+      title: t("features.guided.title"),
+      description: t("features.guided.desc"),
+      color: "text-emerald-400", bg: "bg-emerald-400/10", border: "border-emerald-400/20",
+    },
+    {
+      icon: GraduationCap,
+      title: t("features.full.title"),
+      description: t("features.full.desc"),
+      color: "text-violet-400", bg: "bg-violet-400/10", border: "border-violet-400/20",
+    },
+  ];
+
   return (
     <section id="features" className="py-24 px-6 relative">
       <div className="max-w-6xl mx-auto">
@@ -273,10 +266,10 @@ function FeaturesSection() {
           viewport={{ once: true }}
         >
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            4 chế độ hỗ trợ <span className="gradient-text">thông minh</span>
+            {t("features.title")} <span className="gradient-text">{t("features.titleHighlight")}</span>
           </h2>
           <p className="text-white/50 max-w-xl mx-auto">
-            Hệ thống gia sư AI tiến hóa — từ gợi ý nhẹ đến giải đầy đủ, đảm bảo bạn luôn tư duy trước khi xem đáp án.
+            {t("features.subtitle")}
           </p>
         </motion.div>
 
@@ -308,30 +301,16 @@ function FeaturesSection() {
 
 // ==================== HOW IT WORKS ====================
 
-const steps = [
-  {
-    icon: FileText,
-    title: "Nhập câu hỏi",
-    description: "Gửi câu hỏi, ảnh chụp đề bài, hoặc tài liệu cần hỗ trợ",
-  },
-  {
-    icon: Brain,
-    title: "AI phân tích",
-    description: "Hệ thống xác định chủ đề, độ khó, và chọn mức hỗ trợ phù hợp",
-  },
-  {
-    icon: Sparkles,
-    title: "Hướng dẫn có cấu trúc",
-    description: "Nhận gợi ý, giải thích khái niệm, hoặc hướng dẫn từng bước",
-  },
-  {
-    icon: BarChart3,
-    title: "Theo dõi tiến bộ",
-    description: "Hệ thống ghi nhận điểm yếu và đề xuất bài tập phù hợp",
-  },
-];
-
 function HowItWorksSection() {
+  const { t } = useTranslation();
+
+  const steps = [
+    { icon: FileText, title: t("how.step1.title"), description: t("how.step1.desc") },
+    { icon: Brain, title: t("how.step2.title"), description: t("how.step2.desc") },
+    { icon: Sparkles, title: t("how.step3.title"), description: t("how.step3.desc") },
+    { icon: BarChart3, title: t("how.step4.title"), description: t("how.step4.desc") },
+  ];
+
   return (
     <section id="how-it-works" className="py-24 px-6 relative">
       <div className="gradient-orb w-[400px] h-[400px] bg-indigo-600 left-[-200px] top-0" />
@@ -343,7 +322,7 @@ function HowItWorksSection() {
           viewport={{ once: true }}
         >
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Cách <span className="gradient-text">G-Physics</span> hoạt động
+            {t("how.title")} <span className="gradient-text">{t("how.titleHighlight")}</span> {t("how.titleEnd")}
           </h2>
         </motion.div>
 
@@ -379,27 +358,14 @@ function HowItWorksSection() {
 // ==================== DIFFERENTIATOR ====================
 
 function DifferentiatorSection() {
+  const { t } = useTranslation();
+
   const comparisons = [
-    {
-      generic: "Đưa đáp án ngay lập tức",
-      gphysics: "Hướng dẫn tư duy trước, đáp án sau",
-    },
-    {
-      generic: "Không kiểm tra tính chính xác",
-      gphysics: "Đối chiếu với kiến thức SGK đã xác minh",
-    },
-    {
-      generic: "Trò chuyện tự do, không có cấu trúc",
-      gphysics: "4 chế độ hỗ trợ có mục tiêu rõ ràng",
-    },
-    {
-      generic: "Không theo dõi tiến bộ",
-      gphysics: "Ghi nhận điểm yếu, đề xuất ôn tập cá nhân",
-    },
-    {
-      generic: "Không có ngân hàng đề thi",
-      gphysics: "Luyện đề theo chủ đề + tạo đề thi thử AI",
-    },
+    { generic: t("compare.row1.generic"), gphysics: t("compare.row1.gphysics") },
+    { generic: t("compare.row2.generic"), gphysics: t("compare.row2.gphysics") },
+    { generic: t("compare.row3.generic"), gphysics: t("compare.row3.gphysics") },
+    { generic: t("compare.row4.generic"), gphysics: t("compare.row4.gphysics") },
+    { generic: t("compare.row5.generic"), gphysics: t("compare.row5.gphysics") },
   ];
 
   return (
@@ -412,9 +378,9 @@ function DifferentiatorSection() {
           viewport={{ once: true }}
         >
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Tại sao chọn <span className="gradient-text">G-Physics</span>?
+            {t("compare.title")} <span className="gradient-text">{t("compare.titleHighlight")}</span>?
           </h2>
-          <p className="text-white/50">So sánh với các công cụ AI thông thường</p>
+          <p className="text-white/50">{t("compare.subtitle")}</p>
         </motion.div>
 
         <motion.div
@@ -424,8 +390,8 @@ function DifferentiatorSection() {
           viewport={{ once: true }}
         >
           <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="text-center text-sm font-semibold text-white/40 uppercase tracking-wider">AI thông thường</div>
-            <div className="text-center text-sm font-semibold text-indigo-400 uppercase tracking-wider">G-Physics</div>
+            <div className="text-center text-sm font-semibold text-white/40 uppercase tracking-wider">{t("compare.generic")}</div>
+            <div className="text-center text-sm font-semibold text-indigo-400 uppercase tracking-wider">{t("compare.gphysics")}</div>
           </div>
           {comparisons.map((item, i) => (
             <div key={i} className="grid grid-cols-2 gap-4 py-3 border-t border-white/5">
@@ -448,6 +414,8 @@ function DifferentiatorSection() {
 // ==================== CTA ====================
 
 function CTASection() {
+  const { t } = useTranslation();
+
   return (
     <section className="py-24 px-6 relative">
       <div className="gradient-orb w-[500px] h-[500px] bg-indigo-500 top-0 left-[50%] translate-x-[-50%]" />
@@ -458,16 +426,16 @@ function CTASection() {
         viewport={{ once: true }}
       >
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-          Sẵn sàng học Vật lý <span className="gradient-text">thông minh hơn</span>?
+          {t("cta.title")} <span className="gradient-text">{t("cta.titleHighlight")}</span>?
         </h2>
         <p className="text-white/50 mb-10">
-          Tham gia hàng nghìn học sinh đã chọn G-Physics để chuẩn bị cho kỳ thi THPT Quốc gia
+          {t("cta.subtitle")}
         </p>
         <Link
           href="/signup"
           className="btn-primary inline-flex items-center gap-2 text-lg px-10 py-5 rounded-2xl"
         >
-          Tạo tài khoản miễn phí
+          {t("cta.button")}
           <ArrowRight className="w-5 h-5" />
         </Link>
       </motion.div>
@@ -478,6 +446,8 @@ function CTASection() {
 // ==================== FOOTER ====================
 
 function Footer() {
+  const { t } = useTranslation();
+
   return (
     <footer className="border-t border-white/5 py-12 px-6">
       <div className="max-w-6xl mx-auto">
@@ -490,28 +460,28 @@ function Footer() {
               <span className="text-lg font-bold text-white">G-Physics</span>
             </div>
             <p className="text-sm text-white/40 max-w-sm">
-              Nền tảng học Vật lý thông minh dành cho học sinh lớp 12 Việt Nam. Kết hợp AI có cấu trúc với sư phạm nghiêm túc.
+              {t("footer.desc")}
             </p>
           </div>
           <div>
-            <h4 className="text-sm font-semibold text-white mb-3">Sản phẩm</h4>
+            <h4 className="text-sm font-semibold text-white mb-3">{t("footer.product")}</h4>
             <ul className="space-y-2 text-sm text-white/40">
-              <li><Link href="/tutor" className="hover:text-white/70 transition-colors">Gia sư AI</Link></li>
-              <li><Link href="/practice" className="hover:text-white/70 transition-colors">Luyện đề</Link></li>
-              <li><Link href="/library" className="hover:text-white/70 transition-colors">Thư viện</Link></li>
+              <li><Link href="/tutor" className="hover:text-white/70 transition-colors">{t("footer.aiTutor")}</Link></li>
+              <li><Link href="/practice" className="hover:text-white/70 transition-colors">{t("footer.practice")}</Link></li>
+              <li><Link href="/library" className="hover:text-white/70 transition-colors">{t("footer.library")}</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="text-sm font-semibold text-white mb-3">Hỗ trợ</h4>
+            <h4 className="text-sm font-semibold text-white mb-3">{t("footer.support")}</h4>
             <ul className="space-y-2 text-sm text-white/40">
-              <li><Link href="#" className="hover:text-white/70 transition-colors">Hướng dẫn</Link></li>
-              <li><Link href="#" className="hover:text-white/70 transition-colors">Liên hệ</Link></li>
-              <li><Link href="#" className="hover:text-white/70 transition-colors">Điều khoản</Link></li>
+              <li><span className="text-white/20 cursor-default">{t("footer.guide")}</span></li>
+              <li><span className="text-white/20 cursor-default">{t("footer.contact")}</span></li>
+              <li><span className="text-white/20 cursor-default">{t("footer.terms")}</span></li>
             </ul>
           </div>
         </div>
         <div className="mt-8 pt-8 border-t border-white/5 text-center text-sm text-white/30">
-          © 2026 G-Physics. Được xây dựng cho học sinh Việt Nam.
+          {t("footer.copyright")}
         </div>
       </div>
     </footer>
@@ -521,10 +491,12 @@ function Footer() {
 // ==================== TRUST SECTION ====================
 
 function TrustSection() {
+  const { t } = useTranslation();
+
   const trustItems = [
-    { icon: Shield, title: "Kiến thức đã xác minh", desc: "Dựa trên SGK chính thống" },
-    { icon: Zap, title: "Phản hồi tức thì", desc: "Hỗ trợ 24/7 không giới hạn" },
-    { icon: Users, title: "Sư phạm nghiêm túc", desc: "Thiết kế bởi chuyên gia giáo dục" },
+    { icon: Shield, title: t("trust.verified.title"), desc: t("trust.verified.desc") },
+    { icon: Zap, title: t("trust.instant.title"), desc: t("trust.instant.desc") },
+    { icon: Users, title: t("trust.pedagogy.title"), desc: t("trust.pedagogy.desc") },
   ];
 
   return (

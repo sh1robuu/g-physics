@@ -2,25 +2,38 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Atom, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import { Atom, Mail, Lock, User, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/components/AuthProvider";
+import { useTranslation } from "@/lib/i18n";
 
 export default function SignupPage() {
     const { signup } = useAuth();
+    const { t } = useTranslation();
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
     const [error, setError] = useState("");
+    const [errorCode, setErrorCode] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
+        setErrorCode("");
 
         if (password.length < 8) {
-            setError("Mật khẩu phải có ít nhất 8 ký tự");
+            setError(t("auth.signup.weakPassword"));
+            setErrorCode("AUTH_WEAK_PASSWORD");
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            setError(t("auth.signup.passwordMismatch"));
+            setErrorCode("AUTH_PASSWORD_MISMATCH");
             return;
         }
 
@@ -28,6 +41,7 @@ export default function SignupPage() {
         const result = await signup(name, email, password);
         if (result.error) {
             setError(result.error);
+            setErrorCode(result.code || "");
             setIsLoading(false);
         }
     };
@@ -50,20 +64,23 @@ export default function SignupPage() {
                         </div>
                         <span className="text-xl font-bold text-white">G-Physics</span>
                     </Link>
-                    <h1 className="text-2xl font-bold text-white mb-2">Đăng ký</h1>
-                    <p className="text-white/50 text-sm">Tạo tài khoản để bắt đầu học Vật lý</p>
+                    <h1 className="text-2xl font-bold text-white mb-2">{t("auth.signup.title")}</h1>
+                    <p className="text-white/50 text-sm">{t("auth.signup.subtitle")}</p>
                 </div>
 
                 <div className="glass-panel p-8">
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {error && (
-                            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-                                {error}
+                            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                                <p className="text-red-400 text-sm">{error}</p>
+                                {errorCode && (
+                                    <p className="text-red-400/40 text-[10px] font-mono mt-1">Mã lỗi: {errorCode}</p>
+                                )}
                             </div>
                         )}
 
                         <div>
-                            <label className="block text-sm font-medium text-white/70 mb-2">Họ và tên</label>
+                            <label className="block text-sm font-medium text-white/70 mb-2">{t("auth.signup.name")}</label>
                             <div className="relative">
                                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
                                 <input
@@ -71,14 +88,14 @@ export default function SignupPage() {
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     className="glass-input pl-10"
-                                    placeholder="Nguyễn Văn A"
+                                    placeholder={t("auth.signup.namePlaceholder")}
                                     required
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-white/70 mb-2">Email</label>
+                            <label className="block text-sm font-medium text-white/70 mb-2">{t("auth.signup.email")}</label>
                             <div className="relative">
                                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
                                 <input
@@ -93,7 +110,7 @@ export default function SignupPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-white/70 mb-2">Mật khẩu</label>
+                            <label className="block text-sm font-medium text-white/70 mb-2">{t("auth.signup.password")}</label>
                             <div className="relative">
                                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
                                 <input
@@ -101,7 +118,7 @@ export default function SignupPage() {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     className="glass-input pl-10 pr-10"
-                                    placeholder="Ít nhất 8 ký tự"
+                                    placeholder={t("auth.signup.passwordHint")}
                                     required
                                     minLength={8}
                                 />
@@ -113,7 +130,30 @@ export default function SignupPage() {
                                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                 </button>
                             </div>
-                            <p className="text-xs text-white/30 mt-1.5">Ít nhất 8 ký tự</p>
+                            <p className="text-xs text-white/30 mt-1.5">{t("auth.signup.passwordHint")}</p>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-white/70 mb-2">{t("auth.signup.confirm")}</label>
+                            <div className="relative">
+                                <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                                <input
+                                    type={showConfirm ? "text" : "password"}
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    className="glass-input pl-10 pr-10"
+                                    placeholder={t("auth.signup.confirmPlaceholder")}
+                                    required
+                                    minLength={8}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowConfirm(!showConfirm)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                                >
+                                    {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </button>
+                            </div>
                         </div>
 
                         <button
@@ -124,16 +164,16 @@ export default function SignupPage() {
                             {isLoading ? (
                                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                             ) : (
-                                "Tạo tài khoản"
+                                t("auth.signup.button")
                             )}
                         </button>
                     </form>
                 </div>
 
                 <p className="text-center text-sm text-white/40 mt-6">
-                    Đã có tài khoản?{" "}
+                    {t("auth.signup.hasAccount")}{" "}
                     <Link href="/login" className="text-indigo-400 hover:text-indigo-300 font-medium">
-                        Đăng nhập
+                        {t("auth.signup.loginLink")}
                     </Link>
                 </p>
             </motion.div>

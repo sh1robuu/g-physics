@@ -20,25 +20,30 @@ import {
     MessageSquare,
     Trash2,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { SmartAssistant } from "@/components/SmartAssistant";
 import { useChatStore } from "@/lib/store/chat";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
-
-const navItems = [
-    { title: "Gia sư AI", href: "/tutor", icon: Brain },
-    { title: "Luyện đề", href: "/practice", icon: Target },
-    { title: "Thư viện", href: "/library", icon: Library },
-    { title: "Tổng quan", href: "/dashboard", icon: LayoutDashboard },
-    { title: "Hồ sơ học tập", href: "/profile", icon: User },
-];
+import { useTranslation } from "@/lib/i18n";
+import { SettingsToggles } from "@/components/SettingsToggles";
+import { WelcomeScreen } from "@/components/WelcomeScreen";
+import { OnboardingWalkthrough } from "@/components/OnboardingWalkthrough";
 
 function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
     const pathname = usePathname();
     const router = useRouter();
     const { conversations, activeConversationId, createConversation, setActiveConversation, deleteConversation } = useChatStore();
-    const { logout } = useAuth();
+    const { logout, user } = useAuth();
+    const { t } = useTranslation();
+
+    const navItems = [
+        { title: t("sidebar.aiTutor"), href: "/tutor", icon: Brain },
+        { title: t("sidebar.practice"), href: "/practice", icon: Target },
+        { title: t("sidebar.library"), href: "/library", icon: Library },
+        { title: t("sidebar.overview"), href: "/dashboard", icon: LayoutDashboard },
+        { title: t("sidebar.profile"), href: "/profile", icon: User },
+    ];
 
     return (
         <>
@@ -106,7 +111,7 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
                     {/* Chat History */}
                     <div className="flex-1 px-3 mt-4 overflow-y-auto custom-scrollbar min-h-0">
                         <div className="flex items-center justify-between mb-2 px-1">
-                            <span className="text-[10px] uppercase font-bold text-white/30 tracking-wider">Lịch sử chat</span>
+                            <span className="text-[10px] uppercase font-bold text-white/30 tracking-wider">{t("sidebar.chatHistory")}</span>
                             <button
                                 onClick={() => {
                                     createConversation();
@@ -114,13 +119,13 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
                                     onClose();
                                 }}
                                 className="p-1 rounded-lg hover:bg-white/10 text-white/40 hover:text-white/80 transition-colors"
-                                title="Cuộc trò chuyện mới"
+                                title={t("sidebar.newChat")}
                             >
                                 <Plus className="w-3.5 h-3.5" />
                             </button>
                         </div>
                         {conversations.length === 0 ? (
-                            <p className="text-xs text-white/20 px-2 py-4 text-center">Chưa có cuộc trò chuyện nào</p>
+                            <p className="text-xs text-white/20 px-2 py-4 text-center">{t("sidebar.noChats")}</p>
                         ) : (
                             <div className="space-y-0.5">
                                 {conversations.map((conv) => (
@@ -157,19 +162,22 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
 
                     {/* Bottom */}
                     <div className="p-3 border-t border-white/5 space-y-1">
+                        <div className="flex items-center justify-between px-4 py-2">
+                            <SettingsToggles compact />
+                        </div>
                         <Link
                             href="/admin"
                             className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/40 hover:text-white/70 hover:bg-white/5 transition-all"
                         >
                             <Settings className="w-5 h-5" />
-                            Quản trị
+                            {t("common.admin")}
                         </Link>
                         <button
                             onClick={() => logout()}
                             className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/40 hover:text-red-400 hover:bg-red-400/5 transition-all w-full"
                         >
                             <LogOut className="w-5 h-5" />
-                            Đăng xuất
+                            {t("common.logout")}
                         </button>
                     </div>
                 </div>
@@ -180,9 +188,58 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const { user } = useAuth();
+    const { t } = useTranslation();
+    const [showWelcome, setShowWelcome] = useState(false);
+    const [showOnboarding, setShowOnboarding] = useState(false);
+
+    useEffect(() => {
+        // Check if user just logged in (flag set by AuthProvider)
+        const justLoggedIn = sessionStorage.getItem("g-physics-just-logged-in");
+        if (justLoggedIn) {
+            sessionStorage.removeItem("g-physics-just-logged-in");
+            setShowWelcome(true);
+            return; // Don't show onboarding at the same time
+        }
+
+        // Check if user just signed up (flag set by AuthProvider)  
+        const justSignedUp = sessionStorage.getItem("g-physics-just-signed-up");
+        if (justSignedUp) {
+            sessionStorage.removeItem("g-physics-just-signed-up");
+            setShowOnboarding(true);
+            return;
+        }
+
+        // Check if onboarding was never completed
+        const onboardingDone = localStorage.getItem("g-physics-onboarding-done");
+        if (!onboardingDone && user) {
+            setShowOnboarding(true);
+        }
+    }, [user]);
+
+    const handleWelcomeComplete = useCallback(() => {
+        setShowWelcome(false);
+    }, []);
+
+    const handleOnboardingComplete = useCallback(() => {
+        setShowOnboarding(false);
+    }, []);
 
     return (
         <div className="min-h-screen bg-[#0a0b1a] overflow-hidden flex relative">
+            {/* Welcome Screen */}
+            {showWelcome && (
+                <WelcomeScreen
+                    userName={user?.name || ""}
+                    onComplete={handleWelcomeComplete}
+                />
+            )}
+
+            {/* Onboarding Walkthrough */}
+            {showOnboarding && !showWelcome && (
+                <OnboardingWalkthrough onComplete={handleOnboardingComplete} />
+            )}
+
             {/* Ambient Background Lights */}
             <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
                 <div className="absolute -top-[20%] -right-[10%] w-[800px] h-[800px] bg-indigo-600/15 rounded-full blur-[120px]" />
@@ -203,15 +260,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             <Menu className="w-5 h-5" />
                         </button>
                         <div className="hidden lg:block">
-                            <h2 className="text-xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">Không gian học tập</h2>
+                            <h2 className="text-xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">{t("sidebar.workspace")}</h2>
                         </div>
                         <div className="flex items-center gap-4">
                             <div className="stat-badge stat-badge-info glass-panel border border-indigo-500/30 px-3 py-1.5 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
                                 <Atom className="w-3.5 h-3.5 mr-1 text-indigo-400" />
-                                <span className="text-indigo-200">AI Active</span>
+                                <span className="text-indigo-200">{t("sidebar.aiActive")}</span>
                             </div>
                             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500/30 to-violet-500/30 border border-white/10 flex items-center justify-center text-sm font-bold text-white shadow-lg backdrop-blur-md cursor-pointer hover:border-white/20 transition-colors">
-                                HS
+                                {(() => { try { return (user?.name || 'U').slice(0, 2).toUpperCase(); } catch { return 'U'; } })()}
                             </div>
                         </div>
                     </div>
