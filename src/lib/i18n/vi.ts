@@ -318,6 +318,37 @@ const vi = {
     "theme.light": "Sáng",
     "lang.vi": "Tiếng Việt",
     "lang.en": "English",
+
+    // Sidebar - Feedback
+    "sidebar.feedback": "Góp ý",
+
+    // Feedback
+    "feedback.title": "Góp ý & Phản hồi",
+    "feedback.subtitle": "Ý kiến của bạn giúp chúng tôi cải thiện G-Physics",
+    "feedback.ratingLabel": "Đánh giá trải nghiệm của bạn",
+    "feedback.categoryLabel": "Danh mục",
+    "feedback.messageLabel": "Nội dung góp ý",
+    "feedback.messagePlaceholder": "Chia sẻ trải nghiệm, đề xuất tính năng mới, hoặc báo lỗi...",
+    "feedback.anonymous": "Phản hồi được ghi nhận và bảo mật",
+    "feedback.submit": "Gửi góp ý",
+    "feedback.successMessage": "Cảm ơn bạn đã góp ý! 🎉",
+    "feedback.history": "Lịch sử góp ý",
+    "feedback.noHistory": "Bạn chưa gửi góp ý nào",
+    "feedback.cat.general": "Chung",
+    "feedback.cat.feature": "Tính năng",
+    "feedback.cat.bug": "Lỗi",
+    "feedback.cat.ui": "Giao diện",
+    "feedback.cat.content": "Nội dung",
+    "feedback.gradeLabel": "Bạn đang học lớp mấy?",
+    "feedback.grade.10": "Lớp 10",
+    "feedback.grade.11": "Lớp 11",
+    "feedback.grade.12": "Lớp 12",
+    "feedback.grade.other": "Khác",
+    "feedback.aspectLabel": "Đánh giá chi tiết từng phần (tuỳ chọn)",
+    "feedback.aspect.ratingUI": "Giao diện",
+    "feedback.aspect.ratingContent": "Nội dung bài giảng",
+    "feedback.aspect.ratingAI": "Chất lượng AI Tutor",
+    "feedback.aspect.ratingUX": "Trải nghiệm sử dụng",
 } as const;
 
 export type TranslationKey = keyof typeof vi;

@@ -34,6 +34,7 @@ model User {
   emailVerified   Boolean             @default(false)
   image           String?
   accounts        Account[]
+  feedbacks       Feedback[]
 
   @@map("user")
 }
@@ -346,4 +347,24 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+// ==================== FEEDBACK ====================
+
+model Feedback {
+  id            String   @id @default(cuid())
+  userId        String
+  grade         String   @default("12")
+  category      String   @default("general")
+  message       String
+  ratingOverall Int      @default(5)
+  ratingUI      Int      @default(0)
+  ratingContent Int      @default(0)
+  ratingAI      Int      @default(0)
+  ratingUX      Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("feedback")
 }

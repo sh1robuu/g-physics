@@ -319,6 +319,37 @@ const en: Record<TranslationKey, string> = {
     "theme.light": "Light",
     "lang.vi": "Tiếng Việt",
     "lang.en": "English",
+
+    // Sidebar - Feedback
+    "sidebar.feedback": "Feedback",
+
+    // Feedback
+    "feedback.title": "Feedback",
+    "feedback.subtitle": "Your feedback helps us improve G-Physics",
+    "feedback.ratingLabel": "Rate your experience",
+    "feedback.categoryLabel": "Category",
+    "feedback.messageLabel": "Your feedback",
+    "feedback.messagePlaceholder": "Share your experience, suggest new features, or report bugs...",
+    "feedback.anonymous": "Your feedback is recorded and kept confidential",
+    "feedback.submit": "Submit feedback",
+    "feedback.successMessage": "Thank you for your feedback! 🎉",
+    "feedback.history": "Feedback history",
+    "feedback.noHistory": "You haven't submitted any feedback yet",
+    "feedback.cat.general": "General",
+    "feedback.cat.feature": "Feature",
+    "feedback.cat.bug": "Bug",
+    "feedback.cat.ui": "UI/UX",
+    "feedback.cat.content": "Content",
+    "feedback.gradeLabel": "What grade are you in?",
+    "feedback.grade.10": "Grade 10",
+    "feedback.grade.11": "Grade 11",
+    "feedback.grade.12": "Grade 12",
+    "feedback.grade.other": "Other",
+    "feedback.aspectLabel": "Rate specific aspects (optional)",
+    "feedback.aspect.ratingUI": "User Interface",
+    "feedback.aspect.ratingContent": "Lesson Content",
+    "feedback.aspect.ratingAI": "AI Tutor Quality",
+    "feedback.aspect.ratingUX": "User Experience",
 };
 
 export default en;

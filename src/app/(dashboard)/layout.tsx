@@ -47,6 +47,7 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
         { title: t("sidebar.library"), href: "/library", icon: Library },
         { title: t("sidebar.overview"), href: "/dashboard", icon: LayoutDashboard },
         { title: t("sidebar.profile"), href: "/profile", icon: User },
+        { title: t("sidebar.feedback"), href: "/feedback", icon: MessageSquare },
     ];
 
     return (
@@ -166,9 +167,7 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
 
                     {/* Bottom */}
                     <div className="p-3 border-t border-white/5 space-y-1">
-                        <div className="flex items-center justify-between px-4 py-2">
-                            <SettingsToggles compact />
-                        </div>
+                        <SettingsToggles />
                         {(user as Record<string, unknown>)?.role === "ADMIN" && (
                             <Link
                                 href="/admin"

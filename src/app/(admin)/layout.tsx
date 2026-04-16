@@ -20,6 +20,7 @@ import {
     Database,
     Activity,
     Atom,
+    MessageSquareHeart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +29,7 @@ const adminNav = [
     { title: "Ngân hàng câu hỏi", href: "/admin/questions", icon: FileText },
     { title: "Chủ đề / Phân loại", href: "/admin/topics", icon: FolderTree },
     { title: "Người dùng", href: "/admin/users", icon: Users },
+    { title: "Phản hồi", href: "/admin/feedback", icon: MessageSquareHeart },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
