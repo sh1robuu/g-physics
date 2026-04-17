@@ -63,16 +63,16 @@ function Navbar() {
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
         <div
-          className={`flex items-center justify-between px-3 py-2 rounded-full border transition-all duration-300 ${scrolled
-            ? "bg-[#0c0d1f]/85 backdrop-blur-2xl border-white/10 shadow-xl shadow-black/30"
-            : "bg-[#0c0d1f]/60 backdrop-blur-xl border-white/[0.06]"
+          className={`landing-nav flex items-center justify-between px-3 py-2 rounded-full border transition-all duration-300 ${scrolled
+            ? "backdrop-blur-2xl shadow-xl border-white/10 shadow-black/30"
+            : "backdrop-blur-xl border-white/[0.06]"
             }`}
         >
           <Link href="/" className="flex items-center gap-2 pl-2 shrink-0">
             <div className="w-8 h-8 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center">
               <Atom className="w-4 h-4 text-indigo-400" />
             </div>
-            <span className="text-sm font-bold text-white hidden sm:inline">G-Physics</span>
+            <span className="text-sm font-bold nav-text hidden sm:inline">G-Physics</span>
           </Link>
 
           <div className="hidden md:flex items-center gap-1">
@@ -80,7 +80,7 @@ function Navbar() {
               <a
                 key={link.href}
                 href={link.href}
-                className="px-4 py-2 text-sm text-white/50 hover:text-white/90 transition-colors rounded-full hover:bg-white/[0.05]"
+                className="px-4 py-2 text-sm nav-link transition-colors rounded-full hover:bg-white/[0.05]"
               >
                 {link.label}
               </a>
@@ -91,13 +91,13 @@ function Navbar() {
             <SettingsToggles compact />
             <Link
               href="/login"
-              className="hidden sm:inline-flex items-center px-5 py-2 rounded-full text-sm font-medium bg-white text-[#0c0d1f] hover:bg-white/90 transition-colors"
+              className="hidden sm:inline-flex items-center px-5 py-2 rounded-full text-sm font-medium nav-login-btn transition-colors"
             >
               {t("common.login")}
             </Link>
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden p-2 rounded-full text-white/50 hover:text-white/90 hover:bg-white/5 transition-colors"
+              className="md:hidden p-2 rounded-full nav-link hover:bg-white/5 transition-colors"
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>

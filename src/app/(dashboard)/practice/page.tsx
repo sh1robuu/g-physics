@@ -19,6 +19,7 @@ import {
     X as XIcon,
     Minus,
     Shuffle,
+    Flag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MathRenderer } from "@/components/MathRenderer";
@@ -64,6 +65,8 @@ export default function PracticePage() {
     const [timeLeft, setTimeLeft] = useState(EXAM_TIME_MINUTES * 60);
     const [showExplanation, setShowExplanation] = useState<string | null>(null);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const [flagged, setFlagged] = useState<Set<string>>(new Set());
+    const dotsRef = useRef<HTMLDivElement>(null);
 
     const mcqs = examQuestions.filter((q): q is MCQQuestion => q.type === "mcq");
     const tfs = examQuestions.filter((q): q is TFQuestion => q.type === "tf");
@@ -102,6 +105,7 @@ export default function PracticePage() {
         setIsSubmitted(false);
         setTimeLeft(EXAM_TIME_MINUTES * 60);
         setShowExplanation(null);
+        setFlagged(new Set());
     };
 
     const handleSubmit = () => {
@@ -141,6 +145,16 @@ export default function PracticePage() {
             setCurrentQ(prevQuestions.length - 1);
         }
     };
+
+    // Auto-scroll question dots to current
+    useEffect(() => {
+        if (dotsRef.current) {
+            const activeBtn = dotsRef.current.children[currentQ] as HTMLElement;
+            if (activeBtn) {
+                activeBtn.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+            }
+        }
+    }, [currentQ, currentPart]);
 
     // Count answered
     const totalAnswered = () => {
@@ -440,6 +454,25 @@ export default function PracticePage() {
                         {/* Question number badge */}
                         <div className="flex items-center gap-2 mb-4">
                             <span className="text-xs font-mono text-white/30">Câu {currentPart === 1 ? currentQ + 1 : currentPart === 2 ? currentQ + 19 : currentQ + 23}</span>
+                            <button
+                                onClick={() => {
+                                    setFlagged((prev) => {
+                                        const next = new Set(prev);
+                                        if (next.has(currentQuestion.id)) next.delete(currentQuestion.id);
+                                        else next.add(currentQuestion.id);
+                                        return next;
+                                    });
+                                }}
+                                className={cn(
+                                    "flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium transition-all border",
+                                    flagged.has(currentQuestion.id)
+                                        ? "bg-amber-500/15 border-amber-500/30 text-amber-400"
+                                        : "bg-white/[0.03] border-white/5 text-white/25 hover:text-white/50 hover:bg-white/[0.06]"
+                                )}
+                            >
+                                <Flag className="w-3 h-3" />
+                                {flagged.has(currentQuestion.id) ? "Đã đánh dấu" : "Đánh dấu"}
+                            </button>
                         </div>
 
                         {/* Question text */}
@@ -544,23 +577,27 @@ export default function PracticePage() {
                 </button>
 
                 {/* Question dots */}
-                <div className="flex gap-1 overflow-hidden max-w-[200px]">
+                <div ref={dotsRef} className="flex gap-1 overflow-x-auto max-w-[55%] custom-scrollbar py-1 px-0.5">
                     {partQuestions.map((q, i) => {
                         const isAnswered =
                             q.type === "mcq" ? !!mcqAnswers[q.id] :
                                 q.type === "tf" ? Object.keys(tfAnswers[q.id] || {}).length === 4 :
                                     !!shortAnswers[q.id]?.trim();
+                        const isFlagged = flagged.has(q.id);
                         return (
                             <button
                                 key={q.id}
                                 onClick={() => setCurrentQ(i)}
                                 className={cn(
-                                    "w-6 h-6 rounded-md text-[10px] font-mono transition-all shrink-0",
-                                    i === currentQ ? "bg-indigo-500/30 text-indigo-300 border border-indigo-500/50" :
-                                        isAnswered ? "bg-white/10 text-white/60" : "bg-white/[0.03] text-white/20"
+                                    "w-7 h-7 rounded-lg text-[10px] font-mono transition-all shrink-0 relative",
+                                    i === currentQ ? "bg-indigo-500/30 text-indigo-300 border border-indigo-500/50 ring-1 ring-indigo-500/20" :
+                                        isAnswered ? "bg-white/10 text-white/60 border border-white/10" : "bg-white/[0.03] text-white/20 border border-transparent"
                                 )}
                             >
                                 {i + 1}
+                                {isFlagged && (
+                                    <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-400" />
+                                )}
                             </button>
                         );
                     })}
