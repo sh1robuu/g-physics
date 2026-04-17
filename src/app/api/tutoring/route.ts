@@ -5,7 +5,7 @@ import type { TutoringMode } from "@/types";
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { question, mode, history, topicContext, imageDescription, model } = body;
+        const { question, mode, history, topicContext, imageDescription, model, aiPrefs } = body;
 
         if (!question || typeof question !== "string") {
             return NextResponse.json(
@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
             topicContext,
             imageDescription,
             modelOverride: model,
+            aiPrefs,
         });
 
         return NextResponse.json(result);

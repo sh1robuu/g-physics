@@ -182,6 +182,13 @@ export default function TutorPage() {
         if (textareaRef.current) textareaRef.current.style.height = "auto";
 
         try {
+            // Read AI personalization prefs
+            let aiPrefs = undefined;
+            try {
+                const stored = localStorage.getItem("g-physics-ai-prefs");
+                if (stored) aiPrefs = JSON.parse(stored);
+            } catch { /* ignore */ }
+
             const res = await fetch("/api/tutoring", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -190,6 +197,7 @@ export default function TutorPage() {
                     mode: currentMode,
                     model: currentModel,
                     history: messages.map((m) => ({ role: m.role, content: m.content })),
+                    aiPrefs,
                 }),
             });
 

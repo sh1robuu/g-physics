@@ -1,5 +1,16 @@
 // System prompts for G-Physics AI Tutor
-// Vietnamese Physics Grade 12 — HOCMAI curriculum aligned
+// Vietnamese Physics Grade 10-12 — HOCMAI curriculum aligned
+
+export interface AIPreferences {
+  style?: string;
+  warm?: string;
+  enthusiastic?: string;
+  headersLists?: string;
+  emoji?: string;
+  customInstructions?: string;
+  nickname?: string;
+  grade?: string;
+}
 
 export const SYSTEM_PROMPT_BASE = `Bạn là G-Physics AI — một người bạn đồng hành thông minh chuyên hỗ trợ học sinh Việt Nam học và ôn thi môn Vật lý (lớp 10, 11, 12).
 
@@ -192,6 +203,48 @@ Trong chế độ này, tôi tự đánh giá và chọn mức hỗ trợ phù h
 - Ưu tiên phát triển tư duy độc lập — tôi muốn bạn HIỂU, không chỉ BIẾT đáp án`,
 };
 
-export function getSystemPrompt(mode: string): string {
-  return MODE_PROMPTS[mode] || MODE_PROMPTS.AUTO;
+export function getSystemPrompt(mode: string, prefs?: AIPreferences): string {
+  let prompt = MODE_PROMPTS[mode] || MODE_PROMPTS.AUTO;
+
+  if (prefs) {
+    const parts: string[] = [];
+
+    // Style
+    if (prefs.style && prefs.style !== "balanced") {
+      if (prefs.style === "concise") parts.push("Trả lời ngắn gọn, súc tích, đi thẳng vào vấn đề.");
+      if (prefs.style === "detailed") parts.push("Trả lời chi tiết, giải thích kỹ lưỡng từng bước.");
+    }
+
+    // Characteristics
+    if (prefs.warm === "High") parts.push("Phong cách rất thân thiện, ấm áp, quan tâm.");
+    if (prefs.warm === "Low") parts.push("Phong cách trung tính, chuyên nghiệp.");
+    if (prefs.enthusiastic === "High") parts.push("Rất hào hứng, khích lệ, tích cực.");
+    if (prefs.enthusiastic === "Low") parts.push("Giọng bình tĩnh, điềm đạm.");
+    if (prefs.headersLists === "High") parts.push("Dùng nhiều heading, danh sách, bullet points để trình bày.");
+    if (prefs.headersLists === "Low") parts.push("Hạn chế dùng heading và danh sách, viết paragraph liền mạch.");
+    if (prefs.emoji === "More") parts.push("Dùng nhiều emoji hơn.");
+    if (prefs.emoji === "Less") parts.push("Hạn chế dùng emoji.");
+    if (prefs.emoji === "None") parts.push("KHÔNG dùng emoji.");
+
+    // Grade
+    if (prefs.grade && prefs.grade !== "12") {
+      parts.push(`Học sinh đang học lớp ${prefs.grade}. Ưu tiên kiến thức phù hợp lớp ${prefs.grade}.`);
+    }
+
+    // Nickname
+    if (prefs.nickname) {
+      parts.push(`Gọi học sinh là "${prefs.nickname}" thay vì "bạn".`);
+    }
+
+    // Custom instructions
+    if (prefs.customInstructions?.trim()) {
+      parts.push(`Hướng dẫn bổ sung từ người dùng: ${prefs.customInstructions.trim()}`);
+    }
+
+    if (parts.length > 0) {
+      prompt += `\n\n═══ CÁ NHÂN HÓA ═══\n${parts.join("\n")}`;
+    }
+  }
+
+  return prompt;
 }

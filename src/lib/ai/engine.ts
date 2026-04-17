@@ -1,7 +1,7 @@
 // Tutoring engine - orchestrates AI tutoring with progressive modes
 
 import { generateCompletion, type AIMessage } from "./provider";
-import { getSystemPrompt } from "./prompts";
+import { getSystemPrompt, type AIPreferences } from "./prompts";
 import type { TutoringMode } from "@/types";
 
 export interface TutoringRequest {
@@ -11,6 +11,7 @@ export interface TutoringRequest {
     topicContext?: string;
     imageDescription?: string;
     modelOverride?: string;
+    aiPrefs?: AIPreferences;
 }
 
 export interface TutoringResponse {
@@ -34,10 +35,10 @@ export function getNextMode(currentMode: TutoringMode): TutoringMode | null {
 export async function processQuestion(
     request: TutoringRequest
 ): Promise<TutoringResponse> {
-    const { question, mode, conversationHistory, topicContext, imageDescription, modelOverride } = request;
+    const { question, mode, conversationHistory, topicContext, imageDescription, modelOverride, aiPrefs } = request;
 
     const effectiveMode = mode === "AUTO" ? "HINT" : mode;
-    const systemPrompt = getSystemPrompt(effectiveMode);
+    const systemPrompt = getSystemPrompt(effectiveMode, aiPrefs);
 
     const messages: AIMessage[] = [
         { role: "system", content: systemPrompt },

@@ -74,11 +74,11 @@ export function SettingsToggles({ compact = false }: SettingsTogglesProps) {
 
             {/* Settings Link */}
             <Link
-                href="/profile"
+                href="/settings"
                 className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/40 hover:text-white/70 hover:bg-white/5 transition-all w-full"
             >
                 <Settings className="w-5 h-5" />
-                {t("sidebar.profile")}
+                Cài đặt
             </Link>
         </div>
     );
