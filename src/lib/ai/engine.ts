@@ -10,8 +10,15 @@ export interface TutoringRequest {
     conversationHistory?: { role: "user" | "assistant"; content: string }[];
     topicContext?: string;
     imageDescription?: string;
+    imageBase64?: string[]; // base64-encoded image data (without data:image/... prefix)
     modelOverride?: string;
     aiPrefs?: AIPreferences;
+}
+
+export interface DiagnosisData {
+    topic?: string;
+    concept?: string;
+    breakdown?: string;
 }
 
 export interface TutoringResponse {
@@ -22,6 +29,7 @@ export interface TutoringResponse {
     suggestedNextMode?: TutoringMode;
     detectedTopic?: string;
     detectedSubtopic?: string;
+    diagnosis?: DiagnosisData;
 }
 
 const MODE_PROGRESSION: TutoringMode[] = ["HINT", "CONCEPT", "GUIDED", "FULL_SOLUTION"];
@@ -35,7 +43,7 @@ export function getNextMode(currentMode: TutoringMode): TutoringMode | null {
 export async function processQuestion(
     request: TutoringRequest
 ): Promise<TutoringResponse> {
-    const { question, mode, conversationHistory, topicContext, imageDescription, modelOverride, aiPrefs } = request;
+    const { question, mode, conversationHistory, topicContext, imageDescription, imageBase64, modelOverride, aiPrefs } = request;
 
     const effectiveMode = mode === "AUTO" ? "HINT" : mode;
     const systemPrompt = getSystemPrompt(effectiveMode, aiPrefs);
@@ -58,26 +66,35 @@ export async function processQuestion(
     }
 
     let userContent = question;
-    if (imageDescription) {
+    if (imageBase64 && imageBase64.length > 0) {
+        userContent += `\n\n[Học sinh đã gửi ${imageBase64.length} hình ảnh. Hãy phân tích kĩ hình ảnh để hiểu đề bài và bài giải của học sinh.]`;
+    } else if (imageDescription) {
         userContent += `\n\n[Mô tả hình ảnh/tài liệu: ${imageDescription}]`;
     }
-    messages.push({ role: "user", content: userContent });
+
+    const userMessage: AIMessage = { role: "user", content: userContent };
+    if (imageBase64 && imageBase64.length > 0) {
+        userMessage.images = imageBase64;
+    }
+    messages.push(userMessage);
 
     const config = modelOverride
         ? { baseUrl: process.env.OLLAMA_BASE_URL || "https://ollama.com/api", apiKey: process.env.OLLAMA_API_KEY || "", model: modelOverride }
         : undefined;
-    const content = await generateCompletion(messages, config);
+    const rawContent = await generateCompletion(messages, config);
 
     const suggestedNextMode = getNextMode(effectiveMode);
+    const diagnosis = parseDiagnosis(rawContent);
 
     return {
-        content,
+        content: rawContent,
         mode: effectiveMode,
-        confidence: estimateConfidence(content),
+        confidence: estimateConfidence(rawContent),
         isGrounded: true,
         suggestedNextMode: suggestedNextMode ?? undefined,
-        detectedTopic: extractTopic(question),
+        detectedTopic: diagnosis?.topic || extractTopic(question),
         detectedSubtopic: undefined,
+        diagnosis,
     };
 }
 
@@ -94,6 +111,30 @@ function estimateConfidence(response: string): number {
         response.toLowerCase().includes(p)
     );
     return hasUncertainty ? 0.6 : 0.9;
+}
+
+function parseDiagnosis(content: string): DiagnosisData | undefined {
+    // Look for the 📊 **Chẩn đoán:** block in the AI response
+    const diagnosisMatch = content.match(/📊\s*\*\*Chẩn đoán[:\s]*\*\*/i);
+    if (!diagnosisMatch) return undefined;
+
+    const startIdx = diagnosisMatch.index! + diagnosisMatch[0].length;
+    // Extract lines after the diagnosis header until next section (starting with emoji or ═══)
+    const remaining = content.slice(startIdx);
+    const endMatch = remaining.match(/\n(?:📋|📐|📝|🔢|✅|💡|🔹|═══|\n\n)/m);
+    const block = endMatch ? remaining.slice(0, endMatch.index!) : remaining.slice(0, 500);
+
+    const topicMatch = block.match(/[-•]\s*Chủ đề\s*[:：]\s*(.+)/i);
+    const conceptMatch = block.match(/[-•]\s*Khái niệm(?:\s+kiểm tra)?\s*[:：]\s*(.+)/i);
+    const breakdownMatch = block.match(/[-•]\s*Điểm vướng mắc\s*[:：]\s*(.+)/i);
+
+    const topic = topicMatch?.[1]?.trim();
+    const concept = conceptMatch?.[1]?.trim();
+    const breakdown = breakdownMatch?.[1]?.trim();
+
+    if (!topic && !concept && !breakdown) return undefined;
+
+    return { topic, concept, breakdown };
 }
 
 function extractTopic(question: string): string | undefined {

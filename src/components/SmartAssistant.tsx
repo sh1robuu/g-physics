@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MathRenderer } from "@/components/MathRenderer";
+import { useWeaknessStore } from "@/lib/store/weakness-store";
 
 // ═══════════════════════════════════════════════════════════════
 // CÔNG THỨC VẬT LÝ 12 — Nguồn: HOCMAI
@@ -283,6 +284,7 @@ export function SmartAssistant() {
     const [activeTab, setActiveTab] = useState<"formulas" | "insights">("formulas");
     const [expandedChapter, setExpandedChapter] = useState<number | null>(1);
     const [expandedSection, setExpandedSection] = useState<string | null>("I. Dao động điều hòa");
+    const { weaknesses, resolveWeakness } = useWeaknessStore();
 
     return (
         <div className="glass-panel flex flex-col h-full overflow-hidden relative shadow-2xl border border-white/10">
@@ -387,15 +389,69 @@ export function SmartAssistant() {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
-                            className="flex flex-col items-center justify-center py-10 text-center"
+                            className="space-y-2"
                         >
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-violet-500/20 border border-white/10 flex items-center justify-center mb-4">
-                                <Sparkles className="w-7 h-7 text-indigo-400" />
-                            </div>
-                            <h4 className="text-sm font-semibold text-white mb-2">Chưa có dữ liệu phân tích</h4>
-                            <p className="text-xs text-white/40 max-w-[200px] leading-relaxed">
-                                Hãy bắt đầu chat với AI và luyện đề để hệ thống phân tích điểm mạnh/yếu của bạn.
-                            </p>
+                            {weaknesses.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-10 text-center">
+                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-violet-500/20 border border-white/10 flex items-center justify-center mb-4">
+                                        <Sparkles className="w-7 h-7 text-indigo-400" />
+                                    </div>
+                                    <h4 className="text-sm font-semibold text-white mb-2">Chưa có dữ liệu phân tích</h4>
+                                    <p className="text-xs text-white/40 max-w-[200px] leading-relaxed">
+                                        Hãy bắt đầu chat với AI và luyện đề để hệ thống phân tích điểm mạnh/yếu của bạn.
+                                    </p>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="text-[10px] text-white/30 uppercase tracking-wider px-1 mb-1">
+                                        Điểm yếu đã ghi nhận ({weaknesses.length})
+                                    </div>
+                                    {weaknesses.map((w) => (
+                                        <div
+                                            key={w.id}
+                                            className={cn(
+                                                "p-2.5 rounded-xl border transition-all",
+                                                w.resolved
+                                                    ? "bg-white/[0.01] border-white/5 opacity-50"
+                                                    : "bg-gradient-to-r from-amber-500/5 to-orange-500/5 border-amber-500/15"
+                                            )}
+                                        >
+                                            <div className="flex items-start justify-between gap-2 mb-1">
+                                                <span className="text-[10px] font-medium text-amber-400/80 flex items-center gap-1">
+                                                    <Zap className="w-2.5 h-2.5" />
+                                                    {w.topic}
+                                                </span>
+                                                <div className="flex items-center gap-1 shrink-0">
+                                                    <span className="text-[9px] text-white/20">×{w.occurrences}</span>
+                                                    <div className="flex gap-0.5">
+                                                        {[1, 2, 3, 4, 5].map((s) => (
+                                                            <div
+                                                                key={s}
+                                                                className={cn(
+                                                                    "w-1 h-3 rounded-full",
+                                                                    s <= w.severity
+                                                                        ? "bg-amber-400/80"
+                                                                        : "bg-white/10"
+                                                                )}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="text-[11px] text-white/60 mb-0.5">{w.concept}</div>
+                                            <div className="text-[10px] text-white/35 leading-relaxed">{w.breakdown}</div>
+                                            {!w.resolved && (
+                                                <button
+                                                    onClick={() => resolveWeakness(w.id)}
+                                                    className="mt-1.5 text-[9px] text-emerald-400/60 hover:text-emerald-400 transition-colors"
+                                                >
+                                                    ✓ Đã nắm vững
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+                                </>
+                            )}
                         </motion.div>
                     )}
                 </AnimatePresence>

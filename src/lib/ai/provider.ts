@@ -9,6 +9,7 @@ export interface AIProviderConfig {
 export interface AIMessage {
     role: "system" | "user" | "assistant";
     content: string;
+    images?: string[]; // base64-encoded image data for multimodal models
 }
 
 const defaultConfig: AIProviderConfig = {
@@ -36,7 +37,13 @@ export async function generateCompletion(
         headers,
         body: JSON.stringify({
             model: config.model,
-            messages,
+            messages: messages.map((m) => {
+                const msg: Record<string, unknown> = { role: m.role, content: m.content };
+                if (m.images && m.images.length > 0) {
+                    msg.images = m.images;
+                }
+                return msg;
+            }),
             stream: false,
             options: {
                 temperature: 0.7,

@@ -21,6 +21,7 @@ import {
 import { cn } from "@/lib/utils";
 import { MathRenderer } from "@/components/MathRenderer";
 import { useChatStore } from "@/lib/store/chat";
+import { useWeaknessStore } from "@/lib/store/weakness-store";
 import type { TutoringMode } from "@/types";
 
 interface Attachment {
@@ -28,6 +29,12 @@ interface Attachment {
     type: string;
     size: number;
     dataUrl: string;
+}
+
+interface DiagnosisData {
+    topic?: string;
+    concept?: string;
+    breakdown?: string;
 }
 
 interface Message {
@@ -39,6 +46,8 @@ interface Message {
     isGrounded?: boolean;
     timestamp: Date;
     attachments?: Attachment[];
+    diagnosis?: DiagnosisData;
+    suggestedNextMode?: TutoringMode;
 }
 
 const modes: { key: TutoringMode; label: string; labelVi: string; icon: typeof Lightbulb; color: string; bg: string; desc: string }[] = [
@@ -102,6 +111,7 @@ const conceptCards = [
 
 export default function TutorPage() {
     const { activeConversationId, createConversation, addMessage, getActiveConversation } = useChatStore();
+    const { recordWeakness } = useWeaknessStore();
     const activeConv = getActiveConversation();
 
     const [messages, setMessages] = useState<Message[]>([]);
@@ -124,6 +134,28 @@ export default function TutorPage() {
             reader.onload = () => {
                 setAttachments((prev) => [...prev, {
                     name: file.name,
+                    type: file.type,
+                    size: file.size,
+                    dataUrl: reader.result as string,
+                }]);
+            };
+            reader.readAsDataURL(file);
+        });
+    };
+
+    const handlePaste = (e: React.ClipboardEvent) => {
+        const items = e.clipboardData?.items;
+        if (!items) return;
+        const imageItems = Array.from(items).filter((item) => item.type.startsWith("image/"));
+        if (imageItems.length === 0) return; // no images — let normal text paste happen
+        e.preventDefault(); // prevent pasting image as text
+        imageItems.slice(0, 3).forEach((item) => {
+            const file = item.getAsFile();
+            if (!file || file.size > 10 * 1024 * 1024) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                setAttachments((prev) => [...prev, {
+                    name: `pasted-image-${Date.now()}.png`,
                     type: file.type,
                     size: file.size,
                     dataUrl: reader.result as string,
@@ -198,6 +230,10 @@ export default function TutorPage() {
                     model: currentModel,
                     history: messages.map((m) => ({ role: m.role, content: m.content })),
                     aiPrefs,
+                    // Extract base64 image data from attachments (strip data URL prefix)
+                    imageBase64: userMsg.attachments
+                        ?.filter((a) => a.type.startsWith("image/"))
+                        .map((a) => a.dataUrl.replace(/^data:image\/[^;]+;base64,/, "")) || undefined,
                 }),
             });
 
@@ -223,9 +259,20 @@ export default function TutorPage() {
                     confidence: data.confidence,
                     isGrounded: data.isGrounded,
                     timestamp: new Date(),
+                    diagnosis: data.diagnosis,
+                    suggestedNextMode: data.suggestedNextMode,
                 };
                 setMessages((prev) => [...prev, aiMsg]);
                 addMessage(convId, aiMsg);
+
+                // Record weakness in learner memory
+                if (data.diagnosis?.topic && data.diagnosis?.concept && data.diagnosis?.breakdown) {
+                    recordWeakness(
+                        data.diagnosis.topic,
+                        data.diagnosis.concept,
+                        data.diagnosis.breakdown
+                    );
+                }
             }
         } catch {
             const errorMsg: Message = {
@@ -386,6 +433,51 @@ export default function TutorPage() {
                                         </div>
                                     )}
                                     <MathRenderer content={msg.content} className="text-sm md:text-base leading-relaxed tracking-wide" />
+                                    {/* Diagnosis block display */}
+                                    {msg.role === "assistant" && msg.diagnosis && (
+                                        <div className="mt-3 p-3 rounded-xl bg-gradient-to-r from-amber-500/5 to-orange-500/5 border border-amber-500/15">
+                                            <div className="text-[11px] font-bold text-amber-400/80 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                                <Zap className="w-3 h-3" />
+                                                Chẩn đoán học tập
+                                            </div>
+                                            {msg.diagnosis.topic && (
+                                                <div className="text-xs text-white/60 mb-1">
+                                                    <span className="text-white/30">Chủ đề:</span> {msg.diagnosis.topic}
+                                                </div>
+                                            )}
+                                            {msg.diagnosis.concept && (
+                                                <div className="text-xs text-white/60 mb-1">
+                                                    <span className="text-white/30">Khái niệm:</span> {msg.diagnosis.concept}
+                                                </div>
+                                            )}
+                                            {msg.diagnosis.breakdown && (
+                                                <div className="text-xs text-amber-300/70">
+                                                    <span className="text-white/30">Điểm vướng:</span> {msg.diagnosis.breakdown}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                    {/* Progressive recovery escalation button */}
+                                    {msg.role === "assistant" && msg.suggestedNextMode && msg.mode !== "FULL_SOLUTION" && (
+                                        <button
+                                            onClick={() => {
+                                                const nextMode = msg.suggestedNextMode!;
+                                                setCurrentMode(nextMode);
+                                                const modeLabel = modes.find((m) => m.key === nextMode)?.labelVi || nextMode;
+                                                const escalationMsg = `Tôi cần thêm hỗ trợ. Hãy chuyển sang chế độ ${modeLabel}.`;
+                                                setInput(escalationMsg);
+                                                // Auto-submit after a short delay
+                                                setTimeout(() => {
+                                                    const form = document.querySelector('form');
+                                                    form?.requestSubmit();
+                                                }, 100);
+                                            }}
+                                            className="mt-3 flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-medium hover:bg-indigo-500/20 hover:border-indigo-500/30 transition-all group"
+                                        >
+                                            <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                                            Cần thêm hỗ trợ? → {modes.find((m) => m.key === msg.suggestedNextMode)?.labelVi}
+                                        </button>
+                                    )}
                                     <div className="text-[10px] text-white/30 mt-3 font-mono">
                                         {msg.timestamp.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
                                     </div>
@@ -471,7 +563,8 @@ export default function TutorPage() {
                         onChange={(e) => setInput(e.target.value)}
                         onInput={handleTextareaInput}
                         onKeyDown={handleKeyDown}
-                        placeholder="Nhập câu hỏi Vật lý..."
+                        onPaste={handlePaste}
+                        placeholder="Nhập câu hỏi hoặc dán ảnh (Ctrl+V)..."
                         className="flex-1 glass-input resize-none py-3.5 px-4 rounded-2xl min-h-[52px] max-h-[150px] text-base"
                         rows={1}
                     />
